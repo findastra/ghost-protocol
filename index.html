@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ghost Protocol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#060a08;
+    --bg-2:#050705;
+    --surface:#0a130e;
+    --surface-2:#0e1a13;
+    --border:#1c3826;
+    --border-soft:#132518;
+    --green:#3cff8e;
+    --green-dim:#1e6b41;
+    --green-bright:#8cffc0;
+    --white:#eafff2;
+    --text:#c9f2d7;
+    --text-dim:#6f9c80;
+    --danger:#ff5468;
+    --amber:#ffcf5c;
+    --cyan:#5ce8ff;
+    --magenta:#ff6df0;
+    --radius:10px;
+    --mono:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --display:'Orbitron', var(--mono);
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:15px;
+    line-height:1.5;
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--green);color:#04140a;}
+  a{color:var(--green-bright);}
+  button{font-family:inherit;}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+
+  #matrix-rain{
+    position:fixed; inset:0; width:100%; height:100%;
+    z-index:0; pointer-events:none;
+    opacity:.5;
+  }
+  .scanlines{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,20,10,.35) 3px);
+    mix-blend-mode:multiply;
+    opacity:.35;
+  }
+  .vignette{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0) 45%, rgba(0,4,2,.75) 100%);
+  }
+
+  .wrap{position:relative; z-index:2; max-width:920px; margin:0 auto; padding:16px 18px 80px;}
+
+  /* ---------- header / hud ---------- */
+  .hud{
+    position:sticky; top:0; z-index:20;
+    backdrop-filter:blur(10px);
+    background:rgba(6,10,8,.82);
+    border-bottom:1px solid var(--border);
+    margin:0 0 22px;
+    padding:10px 18px;
+  }
+  .hud-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .hud-logo{
+    display:flex; align-items:center; gap:8px;
+    background:none; border:none; color:var(--green-bright); cursor:pointer;
+    font-family:var(--display); font-weight:700; letter-spacing:.06em;
+    font-size:13px; padding:4px 2px; user-select:none;
+  }
+  .hud-logo svg{width:20px; height:20px; filter:drop-shadow(0 0 6px rgba(60,255,142,.55));}
+  .hud-stats{display:flex; align-items:center; gap:16px; margin-left:auto; flex-wrap:wrap; font-size:11.5px; color:var(--text-dim);}
+  .hud-stat{display:flex; flex-direction:column; align-items:flex-end; gap:1px;}
+  .hud-stat b{
+    font-family:var(--display); font-size:14px; color:var(--green-bright); letter-spacing:.03em;
+    font-variant-numeric:tabular-nums;
+  }
+  .hud-progress{flex:1 1 160px; min-width:120px;}
+  .hud-progress-track{height:6px; border-radius:99px; background:var(--surface-2); border:1px solid var(--border); overflow:hidden;}
+  .hud-progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--green-dim),var(--green)); transition:width .5s ease;}
+  .hud-progress-label{display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-dim); margin-top:3px; letter-spacing:.04em;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:18px 2px 26px; border-bottom:1px dashed var(--border-soft); margin-bottom:26px;}
+  .hero-eyebrow{
+    font-size:11px; letter-spacing:.22em; color:var(--green-dim); text-transform:uppercase;
+    display:flex; align-items:center; gap:8px; margin-bottom:10px;
+  }
+  .hero-eyebrow .dot{width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 1.6s infinite;}
+  @keyframes blink{0%,45%{opacity:1;}50%,95%{opacity:.25;}100%{opacity:1;}}
+  h1.title{
+    font-family:var(--display); font-weight:900; letter-spacing:.01em;
+    font-size:clamp(28px,7vw,48px); line-height:1.05; margin:0 0 12px;
+    color:var(--white);
+    text-shadow:0 0 18px rgba(60,255,142,.35), 0 0 2px rgba(255,255,255,.4);
+    text-wrap:balance;
+    cursor:default;
+  }
+  h1.title span.glitch{position:relative; display:inline-block;}
+  .hero p.sub{max-width:60ch; color:var(--text-dim); font-size:14px; margin:0 0 18px;}
+  .hero-meta{display:flex; gap:10px; flex-wrap:wrap;}
+  .pill{
+    display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--border); background:var(--surface);
+    border-radius:99px; padding:6px 12px; font-size:11.5px; color:var(--text-dim);
+    letter-spacing:.03em;
+  }
+  .pill b{color:var(--green-bright); font-weight:600;}
+  .rank-badge{
+    display:inline-flex; align-items:center; gap:8px;
+    border:1px solid var(--green-dim); background:linear-gradient(180deg, rgba(60,255,142,.10), rgba(60,255,142,.02));
+    border-radius:99px; padding:6px 14px 6px 8px;
+  }
+  .rank-badge .rank-icon{
+    width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--green); color:#04140a; font-family:var(--display); font-weight:900; font-size:11px;
+  }
+  .rank-badge b{font-family:var(--display); font-size:12px; letter-spacing:.05em; color:var(--green-bright);}
+
+  /* ---------- threat meter ---------- */
+  .threat{
+    margin-top:18px; border:1px solid var(--border); background:var(--surface);
+    border-radius:var(--radius); padding:14px 16px;
+  }
+  .threat-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;}
+  .threat-top span{font-size:11px; letter-spacing:.14em; color:var(--text-dim); text-transform:uppercase;}
+  .threat-top b{font-family:var(--display); font-size:13px; letter-spacing:.03em;}
+  .threat-track{height:10px; border-radius:99px; background:var(--surface-2); border:1px solid var(--border); overflow:hidden; position:relative;}
+  .threat-fill{height:100%; width:100%; transition:width .6s ease, background .6s ease;}
+
+  /* ---------- tiers ---------- */
+  .tier{
+    border:1px solid var(--border); background:var(--surface);
+    border-radius:var(--radius); margin-bottom:14px; overflow:hidden;
+  }
+  .tier-head{
+    width:100%; display:flex; align-items:center; gap:12px;
+    background:none; border:none; color:var(--text); cursor:pointer;
+    padding:14px 16px; text-align:left;
+  }
+  .tier-head:hover{background:rgba(60,255,142,.04);}
+  .tier-idx{
+    font-family:var(--display); font-weight:900; font-size:20px; color:var(--tier-accent, var(--green));
+    width:34px; flex:none; text-align:center; opacity:.85;
+  }
+  .tier-titles{flex:1; min-width:0;}
+  .tier-titles .name{
+    font-family:var(--display); font-size:14px; letter-spacing:.05em; color:var(--white); font-weight:700;
+  }
+  .tier-titles .tag{font-size:11.5px; color:var(--text-dim); margin-top:2px;}
+  .tier-count{
+    font-size:11px; color:var(--text-dim); font-variant-numeric:tabular-nums; flex:none;
+    border:1px solid var(--border); border-radius:99px; padding:4px 10px;
+  }
+  .tier-chevron{flex:none; width:16px; height:16px; transition:transform .25s ease; color:var(--text-dim);}
+  .tier.open .tier-chevron{transform:rotate(90deg); color:var(--green-bright);}
+  .tier-progress{height:3px; background:var(--surface-2);}
+  .tier-progress i{display:block; height:100%; background:var(--tier-accent, var(--green)); width:0%; transition:width .5s ease;}
+  .tier-body{
+    max-height:0; overflow:hidden; transition:max-height .35s ease;
+    border-top:1px solid var(--border-soft);
+  }
+  .tier.open .tier-body{border-top:1px solid var(--border-soft);}
+  .tier-body-inner{padding:6px 10px 10px;}
+
+  .item{border-bottom:1px solid var(--border-soft);}
+  .item:last-child{border-bottom:none;}
+  .item-row{display:flex; align-items:flex-start; gap:12px; padding:11px 6px;}
+  .chk{
+    flex:none; width:22px; height:22px; margin-top:1px; border-radius:5px;
+    border:1.5px solid var(--green-dim); background:var(--surface-2);
+    cursor:pointer; position:relative; appearance:none; -webkit-appearance:none;
+    transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .chk:hover{border-color:var(--green);}
+  .chk:focus-visible{outline:2px solid var(--green-bright); outline-offset:2px;}
+  .chk:checked{background:var(--green); border-color:var(--green); box-shadow:0 0 12px rgba(60,255,142,.6);}
+  .chk:checked::after{
+    content:''; position:absolute; left:6px; top:2px; width:6px; height:11px;
+    border:solid #04140a; border-width:0 2.5px 2.5px 0; transform:rotate(40deg);
+  }
+  .item-main{flex:1; min-width:0;}
+  .item-head{display:flex; align-items:center; gap:8px; cursor:pointer;}
+  .item-title{font-size:14px; color:var(--white); font-weight:600;}
+  .item.done .item-title{color:var(--text-dim); text-decoration:line-through; text-decoration-color:var(--green-dim);}
+  .item-blurb{font-size:12.5px; color:var(--text-dim); margin-top:2px;}
+  .item-info{
+    flex:none; width:20px; height:20px; border-radius:50%; border:1px solid var(--border);
+    background:none; color:var(--text-dim); cursor:pointer; font-size:11px; font-family:var(--display);
+    display:flex; align-items:center; justify-content:center; transition:transform .2s ease;
+  }
+  .item-info:hover{color:var(--green-bright); border-color:var(--green-dim);}
+  .item.expanded .item-info{transform:rotate(45deg); color:var(--green-bright);}
+  .item-detail{
+    max-height:0; overflow:hidden; transition:max-height .3s ease;
+    font-size:12.5px; color:var(--text); padding-left:0;
+  }
+  .item.expanded .item-detail{max-height:200px;}
+  .item-detail-inner{padding:8px 12px; margin-top:6px; border-left:2px solid var(--green-dim); background:rgba(60,255,142,.04);}
+
+  /* ---------- footer ---------- */
+  footer{margin-top:36px; padding-top:20px; border-top:1px dashed var(--border-soft); font-size:11.5px; color:var(--text-dim);}
+  footer .foot-row{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;}
+  .ghost-btn{
+    background:none; border:1px solid var(--border); color:var(--text-dim); border-radius:6px;
+    padding:6px 12px; font-size:11px; cursor:pointer; font-family:var(--mono);
+  }
+  .ghost-btn:hover{border-color:var(--green-dim); color:var(--green-bright);}
+  .bug{
+    display:inline-block; width:6px; height:6px; border-radius:2px; background:var(--border-soft);
+    cursor:pointer; opacity:.7;
+  }
+
+  /* ---------- terminal ---------- */
+  .term-launcher{
+    position:fixed; right:18px; bottom:18px; z-index:40;
+    width:52px; height:52px; border-radius:50%;
+    background:var(--surface); border:1px solid var(--green-dim);
+    color:var(--green-bright); font-family:var(--display); font-size:16px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    box-shadow:0 0 22px rgba(60,255,142,.25); transition:transform .2s ease;
+  }
+  .term-launcher:hover{transform:scale(1.06);}
+  .term-panel{
+    position:fixed; right:18px; bottom:82px; z-index:40;
+    width:min(360px, calc(100vw - 36px)); height:min(320px, 50vh);
+    background:rgba(6,12,9,.97); border:1px solid var(--green-dim); border-radius:var(--radius);
+    display:flex; flex-direction:column; overflow:hidden;
+    box-shadow:0 10px 40px rgba(0,0,0,.6);
+    transform:translateY(12px); opacity:0; pointer-events:none; transition:all .2s ease;
+  }
+  .term-panel.open{transform:translateY(0); opacity:1; pointer-events:auto;}
+  .term-bar{display:flex; align-items:center; gap:6px; padding:8px 10px; border-bottom:1px solid var(--border); font-size:11px; color:var(--text-dim);}
+  .term-bar .dot{width:9px; height:9px; border-radius:50%;}
+  .term-log{flex:1; overflow-y:auto; padding:10px 12px; font-size:12px; line-height:1.55;}
+  .term-log div{margin-bottom:4px; word-wrap:break-word;}
+  .term-log .cmd::before{content:'guest@ghost:~$ '; color:var(--green-dim);}
+  .term-input-row{display:flex; align-items:center; border-top:1px solid var(--border); padding:8px 10px; gap:6px;}
+  .term-input-row span{color:var(--green-dim); font-size:12px;}
+  .term-input-row input{
+    flex:1; background:none; border:none; color:var(--green-bright); font-family:var(--mono); font-size:12.5px; outline:none;
+  }
+
+  /* ---------- toast ---------- */
+  #toast-wrap{position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:60; display:flex; flex-direction:column; gap:8px; align-items:center; width:min(360px, calc(100vw - 24px));}
+  .toast{
+    background:rgba(8,16,11,.96); border:1px solid var(--green-dim); border-radius:8px;
+    padding:10px 14px; font-size:12px; color:var(--white); box-shadow:0 6px 24px rgba(0,0,0,.5);
+    display:flex; gap:10px; align-items:center; animation:toast-in .35s ease;
+    width:100%;
+  }
+  .toast b{color:var(--green-bright); font-family:var(--display); font-size:11px; letter-spacing:.04em;}
+  @keyframes toast-in{from{opacity:0; transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- modal ---------- */
+  .modal-back{
+    position:fixed; inset:0; z-index:70; background:rgba(2,6,4,.75); backdrop-filter:blur(4px);
+    display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s ease;
+    padding:20px;
+  }
+  .modal-back.open{opacity:1; pointer-events:auto;}
+  .modal{
+    background:var(--surface); border:1px solid var(--green-dim); border-radius:var(--radius);
+    max-width:380px; width:100%; padding:20px; text-align:center;
+  }
+  .modal h3{font-family:var(--display); font-size:15px; color:var(--white); margin:0 0 10px;}
+  .modal p{font-size:12.5px; color:var(--text-dim); margin:0 0 16px;}
+  .modal-actions{display:flex; gap:10px; justify-content:center;}
+  .btn{border-radius:6px; padding:9px 16px; font-size:12px; cursor:pointer; font-family:var(--mono); border:1px solid var(--border);}
+  .btn-danger{background:rgba(255,84,104,.12); border-color:var(--danger); color:#ffb3bd;}
+  .btn-ghost{background:none; color:var(--text-dim);}
+
+  /* ---------- celebration overlay ---------- */
+  #celebrate{
+    position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center;
+    background:rgba(2,8,4,.88); opacity:0; pointer-events:none; transition:opacity .4s ease; text-align:center; padding:20px;
+  }
+  #celebrate.open{opacity:1; pointer-events:auto;}
+  #celebrate h2{font-family:var(--display); font-size:clamp(22px,6vw,36px); color:var(--white); text-shadow:0 0 24px rgba(60,255,142,.7); margin:0 0 10px;}
+  #celebrate p{color:var(--green-bright); font-size:13px; letter-spacing:.05em;}
+
+  .particle{position:fixed; z-index:55; border-radius:50%; pointer-events:none;}
+
+  @media (max-width:520px){
+    .hud-stats{gap:10px;}
+    .hero-meta{gap:8px;}
+    .wrap{padding:12px 12px 70px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    * {animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+</style>
+</head>
+<body>
+<canvas id="matrix-rain" aria-hidden="true"></canvas>
+<div class="scanlines" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<div id="toast-wrap" aria-live="polite"></div>
+
+<div class="hud">
+  <div class="hud-row">
+    <button class="hud-logo" id="logo-btn" title="???" aria-label="Ghost Protocol">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l7 3v6c0 5-3.2 8.5-7 11-3.8-2.5-7-6-7-11V5l7-3z" stroke="currentColor" stroke-width="1.6"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      GHOST_PROTOCOL
+    </button>
+    <div class="hud-progress">
+      <div class="hud-progress-track"><div class="hud-progress-fill" id="hud-fill"></div></div>
+      <div class="hud-progress-label"><span id="hud-pct">0% secured</span><span id="hud-frac">0/0</span></div>
+    </div>
+    <div class="hud-stats">
+      <div class="hud-stat"><b id="stat-visits">&mdash;</b><span id="stat-visits-label">visits</span></div>
+      <div class="hud-stat"><b id="stat-rank">NOVICE</b><span>clearance</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-eyebrow"><span class="dot"></span> SECURE_CHECKLIST // AUDRA-INSTANCE</div>
+    <h1 class="title" id="glitch-title"><span class="glitch">YOUR PERSONAL SECURITY CHECKLIST</span></h1>
+    <p class="sub">Ordered from "do this today" to "this is genuinely nitty-gritty." Check things off as you actually do them &mdash; your progress saves in this browser, and stays yours alone. Anyone else who opens this link gets their own blank run.</p>
+    <div class="hero-meta">
+      <div class="rank-badge"><span class="rank-icon" id="rank-icon">N</span><b id="rank-name">NOVICE OPERATOR</b></div>
+      <div class="pill"><b id="pill-done">0</b>&nbsp;/&nbsp;<span id="pill-total">0</span> items cleared</div>
+      <div class="pill" id="pill-egg" style="display:none;"><b>&#9670;</b>&nbsp;easter eggs found</div>
+    </div>
+
+    <div class="threat">
+      <div class="threat-top"><span>Exposure level</span><b id="threat-label">CRITICAL EXPOSURE</b></div>
+      <div class="threat-track"><div class="threat-fill" id="threat-fill"></div></div>
+    </div>
+  </div>
+
+  <div id="tiers"></div>
+
+  <footer>
+    <div class="foot-row">
+      <span>Built for Audra by Claude &middot; open-sourced on <a href="#" id="footer-gh-link" target="_blank" rel="noopener">GitHub</a></span>
+      <button class="ghost-btn" id="reset-btn">Reset my progress</button>
+    </div>
+    <div style="margin-top:10px; opacity:.5;">v1.0 &middot; <span class="bug" id="hidden-bug" title=""></span></div>
+  </footer>
+</div>
+
+<button class="term-launcher" id="term-launcher" aria-label="Open terminal" title="Open terminal">&gt;_</button>
+<div class="term-panel" id="term-panel">
+  <div class="term-bar">
+    <span class="dot" style="background:var(--danger);"></span>
+    <span class="dot" style="background:var(--amber);"></span>
+    <span class="dot" style="background:var(--green);"></span>
+    <span style="margin-left:6px;">guest@ghost-protocol</span>
+    <span style="margin-left:auto; cursor:pointer;" id="term-close">&#10005;</span>
+  </div>
+  <div class="term-log" id="term-log"></div>
+  <div class="term-input-row">
+    <span>&gt;</span>
+    <input id="term-input" type="text" autocomplete="off" spellcheck="false" placeholder="type 'help'" aria-label="Terminal command input" />
+  </div>
+</div>
+
+<div class="modal-back" id="reset-modal">
+  <div class="modal">
+    <h3>WIPE LOCAL PROGRESS?</h3>
+    <p>This clears every checked item saved in this browser. It can't be undone, and it only affects your copy &mdash; nobody else's progress is touched.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="reset-cancel">Cancel</button>
+      <button class="btn btn-danger" id="reset-confirm">Wipe it</button>
+    </div>
+  </div>
+</div>
+
+<div id="celebrate">
+  <div>
+    <h2 id="celebrate-title">FULL CLEARANCE</h2>
+    <p id="celebrate-sub">DIGITAL GHOST STATUS ACHIEVED</p>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   DATA
+========================================================= */
+var TIERS = [
+  {
+    id:'t0', code:'00', name:'ROOT ACCESS', tag:'Do these before anything else. This is how accounts actually get taken over.',
+    accent:'var(--danger)',
+    items:[
+      {t:'Get a password manager', b:'One vault, one strong master password, unique random passwords everywhere else.', d:'Reusing passwords means one breached site can unlock your entire life. Use Bitwarden, 1Password, or similar to generate and store a unique, random password for every account. Your only job is remembering one strong master password or passphrase.'},
+      {t:'Turn on MFA everywhere', b:'Authenticator app or hardware key, not just SMS.', d:'Multi-factor authentication is the single biggest lever against account takeover. Prioritize an authenticator app or a hardware key over SMS codes, which can be intercepted via SIM-swap attacks. Start with email, banking, and your password manager.'},
+      {t:'Automatic updates, everywhere', b:'OS, browser, phone, router firmware — set it and forget it.', d:'Most real-world breaches exploit known, already-patched vulnerabilities. Turn on automatic updates for your operating system, browser, phone, and router firmware so you are never running software with a public, unpatched hole.'},
+      {t:'Full-disk encryption', b:'BitLocker, FileVault, or LUKS — on every laptop and desktop.', d:'If a device is lost or stolen, disk encryption keeps your files unreadable to anyone who simply pulls the drive. It is built into every modern OS and free to turn on.'},
+      {t:'Real lock screens', b:'6+ digit PIN or biometric on every phone, tablet, and laptop.', d:'No swipe-to-unlock, no 4-digit PINs if longer is offered. A device that is always unlocked is a device anyone nearby can walk right into.'},
+      {t:'3-2-1 backups, tested', b:'3 copies, 2 media types, 1 offsite — and actually try a restore.', d:'Ransomware and hardware failure both end the same way without backups: total loss. Keep three copies of anything irreplaceable across two kinds of storage, at least one offsite or offline, and periodically prove the restore actually works.'},
+      {t:'Change your router’s defaults', b:'New admin password, current firmware.', d:'Routers ship with well-known default admin credentials that get scanned for constantly. Change the admin password immediately and keep firmware current — this is the front door to your entire home network.'},
+      {t:'Know how to freeze your credit', b:'Equifax, Experian, TransUnion — free and reversible.', d:'A credit freeze blocks anyone, including you until you lift it, from opening new credit in your name. It costs nothing, takes minutes per bureau, and is one of the strongest defenses against identity theft.'},
+      {t:'Store recovery codes offline', b:'Printed, in a safe — not a screenshot in your camera roll.', d:'Backup codes for critical accounts should not depend on the internet or your phone. A fireproof safe or safety-deposit box means that if your password manager and phone are both compromised at once, you still have a way back in.'},
+      {t:'A real recovery email/phone', b:'Separate from your daily-driver inbox, for critical accounts only.', d:'The account recovery flow is a favorite target for attackers. A dedicated recovery address nobody knows to target, used only for recovery settings, closes that door.'}
+    ]
+  },
+  {
+    id:'t1', code:'01', name:'PERIMETER', tag:'Strong defenses that close the next layer of common attacks.',
+    accent:'var(--amber)',
+    items:[
+      {t:'Hardware security key', b:'YubiKey or similar, on your primary email, vault, and bank.', d:'A physical key defeats phishing outright — even a perfect fake login page cannot extract a signature from a key that is not plugged in. Reserve it for the handful of accounts that would be catastrophic to lose.'},
+      {t:'New-device / new-login alerts', b:'Email, banking, social — know the moment someone else logs in.', d:'Most platforms offer a setting to alert you on unrecognized sign-ins. It is a free early-warning system that can catch a breach in minutes instead of months.'},
+      {t:'Separate your email accounts', b:'Personal, financial, work, and throwaway — not all the same inbox.', d:'One compromised inbox should not cascade into your bank, your job, and your personal life. Splitting by purpose limits the blast radius of any single breach.'},
+      {t:'Audit your OAuth connections', b:'“Sign in with Google/Apple” apps — revoke what you don’t use.', d:'Every app you have ever granted account access to is a standing door into that account. Check your connected-apps pages quarterly and revoke anything you no longer use.'},
+      {t:'Harden your Wi-Fi', b:'WPA3 (or WPA2-AES), WPS off, smart devices on their own network.', d:'WPS has known bypass attacks and older WPA versions are crackable. Use the strongest encryption your router supports, disable WPS entirely, and keep smart-home gadgets off your main network.'},
+      {t:'VPN on untrusted networks', b:'Coffee shops, airports, hotel Wi-Fi — always.', d:'Public Wi-Fi makes it trivial for anyone nearby to snoop or intercept traffic. A reputable paid VPN encrypts your connection until you are back on a network you trust.'},
+      {t:'Check for breaches', b:'haveibeenpwned.com or your password manager’s built-in monitor.', d:'Data breaches happen constantly, often quietly. A breach monitor tells you the moment one of your accounts shows up in a leak so you can rotate that password immediately.'},
+      {t:'Encrypt your phone backups', b:'Encrypted iCloud/Google backup, not the plain default.', d:'A standard cloud backup can be readable by the provider. Turning on end-to-end encrypted backup means only you hold the key.'},
+      {t:'Find My / remote wipe', b:'On every phone, tablet, and laptop, before you need it.', d:'If a device is lost or stolen, remote-wipe is the difference between an inconvenience and a full data breach — and it has to be turned on beforehand.'},
+      {t:'Real-time antivirus / endpoint protection', b:'Especially on Windows — Defender counts, just keep it on.', d:'Modern built-in protection is genuinely solid, but only if it is actually enabled and up to date. Do not assume — check.'}
+    ]
+  },
+  {
+    id:'t2', code:'02', name:'DEEP FIELD', tag:'Privacy and network hygiene — quieting your footprint.',
+    accent:'var(--cyan)',
+    items:[
+      {t:'Privacy-respecting DNS', b:'Quad9, NextDNS, or 1.1.1.1 with malware/tracker blocking.', d:'Your DNS resolver sees every domain you visit. Switching from your ISP’s default to one that blocks known malware and tracking domains adds a free layer of protection.'},
+      {t:'Tracker/ad blocking + permission audits', b:'uBlock Origin, plus a periodic check of site camera/mic/location access.', d:'A good blocker cuts off cross-web profiling, and a regular pass through your browser’s site-permissions list catches access you granted once and forgot about.'},
+      {t:'Alias email for signups', b:'A “hide my email” service or alias for newsletters and one-off forms.', d:'Every signup form is a place your real email can leak or get sold. An alias lets you use a unique, disposable address per site and kill it the moment the spam starts.'},
+      {t:'Lock down social media privacy', b:'Who sees your posts, friends list, and tagged photos.', d:'Social profiles are a goldmine for social-engineering attacks — pet names, schools, birthdays all feed password guesses and security-question answers.'},
+      {t:'Opt out of data brokers', b:'Reduce what people-search sites can surface about you.', d:'Broker sites aggregate your address history, phone numbers, and relatives into a page anyone can pay for. Opting out meaningfully shrinks your public footprint.'},
+      {t:'Move sensitive chats to encrypted messaging', b:'Signal instead of plain SMS for anything that matters.', d:'SMS has no meaningful encryption and can be intercepted via SIM-swap. Signal’s end-to-end encryption keeps the message unreadable to anyone but the people in it.'},
+      {t:'Turn off what you’re not using', b:'Bluetooth, NFC, Wi-Fi auto-connect, when idle.', d:'Radios that are always on are always discoverable. Turning them off when you are not actively using them shrinks your attack surface for free.'},
+      {t:'Host-based firewall, on', b:'Windows Defender Firewall, macOS firewall, or ufw on Linux.', d:'A firewall controls what is allowed to talk to your machine at all. Every mainstream OS ships one — confirm it is actually switched on.'},
+      {t:'Shred sensitive paper mail', b:'Anything with account numbers, SSNs, or medical info.', d:'Dumpster diving for pre-approved offers and old statements is a real, low-tech identity-theft method. A cheap cross-cut shredder closes that door completely.'},
+      {t:'Lock down router admin access', b:'DNSSEC where supported, remote WAN-side admin off.', d:'Remote router administration from the public internet is a feature most people never need and attackers actively scan for. Turn it off.'}
+    ]
+  },
+  {
+    id:'t3', code:'03', name:'GHOST PROTOCOL', tag:'The nitty-gritty. Power-user and high-threat-model territory.',
+    accent:'var(--magenta)',
+    items:[
+      {t:'Rotate keys and tokens', b:'API keys, tokens, app passwords — on a schedule, and after any offboarding.', d:'A credential that never expires is a credential that, once leaked, works forever. Rotate anything long-lived on a schedule, and immediately after anyone with access is offboarded.'},
+      {t:'Canary tokens', b:'Free tripwires (canarytokens.org) in sensitive folders and documents.', d:'A canary token is a fake credential or document that silently alerts you the moment someone opens it. Free, five minutes to set up, genuinely useful.'},
+      {t:'Isolate high-risk browsing', b:'A dedicated VM or sandboxed browser profile for sketchy downloads.', d:'One-off downloads or anything you do not fully trust — do it inside a disposable VM or separate browser profile so a bad outcome stays contained.'},
+      {t:'Self-host your password vault', b:'Vaultwarden, if you want zero third-party custody of your secrets.', d:'Self-hosting your password manager means your vault never touches anyone else’s infrastructure — at the cost of being responsible for backing it up yourself.'},
+      {t:'SSH keys, not passwords', b:'Ideally hardware-backed (FIDO2), with password auth disabled entirely.', d:'Password-based SSH is a brute-force target the moment a server is internet-facing. Key-based auth removes that surface — then disable password auth on the server.'},
+      {t:'Audit account access logs', b:'Google, Microsoft, AWS — check for sessions you don’t recognize.', d:'Most major providers keep a login-history page most people never open. A periodic look catches quiet intrusions long before anything else would.'},
+      {t:'Segment your home network', b:'IoT, guests, and trusted devices each on their own VLAN.', d:'A smart bulb has no business talking to your NAS. VLANs mean a compromised smart-home gadget cannot reach the devices that actually matter.'},
+      {t:'GPG/PGP for email that must survive interception', b:'For the rare message that truly can’t be read in transit.', d:'Standard email is effectively postcards, readable at several points in transit. GPG/PGP encrypts the message itself so only the intended recipient’s key can open it.'},
+      {t:'A hardened OS for high-risk sessions', b:'Tails or Qubes, on a dedicated drive, for your highest threat-model moments.', d:'Tails leaves no trace on the host machine; Qubes compartmentalizes everything into isolated VMs. Overkill for daily use, exactly right for the moments it is actually needed.'},
+      {t:'Air-gapped backup of your master secrets', b:'Recovery seed phrases and master-password hints — offline, always.', d:'Your most critical secrets should exist on paper or metal in a safe, never as a photo, note, or file on any internet-connected device.'},
+      {t:'Touch grass', b:'Step away from the screen sometimes. Burnout causes security mistakes.', d:'Tired, rushed, and distracted are exactly the conditions phishing and social engineering are built to exploit. The item most people skip: rest is part of your threat model too.', egg:'grass'}
+    ]
+  }
+];
+
+var RANKS = [
+  {min:0, name:'NOVICE OPERATOR', icon:'N'},
+  {min:15, name:'JUNIOR ANALYST', icon:'A'},
+  {min:35, name:'FIELD AGENT', icon:'F'},
+  {min:60, name:'SENIOR OPERATIVE', icon:'S'},
+  {min:85, name:'ARCHITECT', icon:'X'},
+  {min:100, name:'DIGITAL GHOST', icon:'G'}
+];
+
+/* =========================================================
+   STATE
+========================================================= */
+var STORE_KEY = 'ghost_protocol_state_v1';
+var state = loadState();
+
+function defaultState(){
+  return { checked:{}, expanded:{}, eggs:[], achievements:[], muted:true, localVisits:0, celebrated:false };
+}
+function loadState(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return defaultState();
+    var parsed = JSON.parse(raw);
+    var d = defaultState();
+    for(var k in d){ if(!(k in parsed)) parsed[k]=d[k]; }
+    return parsed;
+  }catch(e){ return defaultState(); }
+}
+function saveState(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+var ALL_ITEMS = [];
+TIERS.forEach(function(tier){
+  tier.items.forEach(function(it, idx){
+    it.id = tier.id + '_' + idx;
+    it.tierId = tier.id;
+    ALL_ITEMS.push(it);
+  });
+});
+var TOTAL = ALL_ITEMS.length;
+
+/* =========================================================
+   RENDER
+========================================================= */
+var tiersEl = document.getElementById('tiers');
+
+function iconChevron(){
+  return '<svg class="tier-chevron" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function renderTiers(){
+  var html = '';
+  TIERS.forEach(function(tier){
+    var doneCount = tier.items.filter(function(it){ return !!state.checked[it.id]; }).length;
+    var openClass = state.expanded['tier_'+tier.id] ? ' open' : '';
+    html += '<section class="tier'+openClass+'" id="tier-'+tier.id+'" style="--tier-accent:'+tier.accent+'">';
+    html += '  <button class="tier-head" data-tier="'+tier.id+'" aria-expanded="'+(!!state.expanded['tier_'+tier.id])+'">';
+    html += '    <span class="tier-idx">'+tier.code+'</span>';
+    html += '    <span class="tier-titles"><div class="name">'+tier.name+'</div><div class="tag">'+tier.tag+'</div></span>';
+    html += '    <span class="tier-count">'+doneCount+'/'+tier.items.length+'</span>';
+    html +=      iconChevron();
+    html += '  </button>';
+    html += '  <div class="tier-progress"><i style="width:'+Math.round(doneCount/tier.items.length*100)+'%"></i></div>';
+    html += '  <div class="tier-body"><div class="tier-body-inner">';
+    tier.items.forEach(function(it){
+      var checked = !!state.checked[it.id];
+      var expanded = !!state.expanded[it.id];
+      html += '<div class="item'+(checked?' done':'')+(expanded?' expanded':'')+'" data-item="'+it.id+'">';
+      html += '  <div class="item-row">';
+      html += '    <input type="checkbox" class="chk" id="chk-'+it.id+'" '+(checked?'checked':'')+' aria-label="'+it.t.replace(/"/g,'&quot;')+'"/>';
+      html += '    <div class="item-main">';
+      html += '      <div class="item-head" data-toggle="'+it.id+'">';
+      html += '        <div style="flex:1;"><div class="item-title">'+it.t+'</div><div class="item-blurb">'+it.b+'</div></div>';
+      html += '        <button class="item-info" data-toggle="'+it.id+'" aria-label="More detail">+</button>';
+      html += '      </div>';
+      html += '      <div class="item-detail"><div class="item-detail-inner">'+it.d+'</div></div>';
+      html += '    </div>';
+      html += '  </div>';
+      html += '</div>';
+    });
+    html += '  </div></div>';
+    html += '</section>';
+  });
+  tiersEl.innerHTML = html;
+
+  // wire checkboxes
+  ALL_ITEMS.forEach(function(it){
+    var cb = document.getElementById('chk-'+it.id);
+    if(cb){
+      cb.addEventListener('change', function(e){ toggleItem(it, e.target.checked); });
+      cb.addEventListener('click', function(e){ e.stopPropagation(); });
+    }
+  });
+  // wire item expand toggles
+  Array.prototype.forEach.call(document.querySelectorAll('[data-toggle]'), function(el){
+    el.addEventListener('click', function(e){
+      var id = el.getAttribute('data-toggle');
+      state.expanded[id] = !state.expanded[id];
+      saveState();
+      var itemEl = document.querySelector('[data-item="'+id+'"]');
+      if(itemEl) itemEl.classList.toggle('expanded', !!state.expanded[id]);
+    });
+  });
+  // wire tier headers
+  Array.prototype.forEach.call(document.querySelectorAll('.tier-head'), function(el){
+    el.addEventListener('click', function(){
+      var tid = el.getAttribute('data-tier');
+      var key = 'tier_'+tid;
+      state.expanded[key] = !state.expanded[key];
+      saveState();
+      var sec = document.getElementById('tier-'+tid);
+      sec.classList.toggle('open', !!state.expanded[key]);
+      el.setAttribute('aria-expanded', !!state.expanded[key]);
+      var body = sec.querySelector('.tier-body');
+      body.style.maxHeight = state.expanded[key] ? body.scrollHeight+'px' : '0px';
+    });
+  });
+  // set initial max-heights for open tiers
+  Array.prototype.forEach.call(document.querySelectorAll('.tier.open .tier-body'), function(body){
+    body.style.maxHeight = body.scrollHeight+'px';
+  });
+}
+
+function updateStats(){
+  var done = ALL_ITEMS.filter(function(it){ return !!state.checked[it.id]; }).length;
+  var pct = Math.round(done/TOTAL*100);
+  document.getElementById('hud-fill').style.width = pct+'%';
+  document.getElementById('hud-pct').textContent = pct+'% secured';
+  document.getElementById('hud-frac').textContent = done+'/'+TOTAL;
+  document.getElementById('pill-done').textContent = done;
+  document.getElementById('pill-total').textContent = TOTAL;
+
+  // tier counters
+  TIERS.forEach(function(tier){
+    var doneCount = tier.items.filter(function(it){ return !!state.checked[it.id]; }).length;
+    var sec = document.getElementById('tier-'+tier.id);
+    if(sec){
+      sec.querySelector('.tier-count').textContent = doneCount+'/'+tier.items.length;
+      sec.querySelector('.tier-progress i').style.width = Math.round(doneCount/tier.items.length*100)+'%';
+    }
+  });
+
+  // rank
+  var rank = RANKS[0];
+  RANKS.forEach(function(r){ if(pct>=r.min) rank = r; });
+  document.getElementById('rank-name').textContent = rank.name;
+  document.getElementById('rank-icon').textContent = rank.icon;
+  document.getElementById('stat-rank').textContent = rank.name.split(' ')[0];
+
+  // threat meter: inverted, more done = less exposure
+  var exposure = 100 - pct;
+  var fill = document.getElementById('threat-fill');
+  fill.style.width = exposure+'%';
+  var label, color;
+  if(exposure > 80){ label='CRITICAL EXPOSURE'; color='var(--danger)'; }
+  else if(exposure > 55){ label='HIGH EXPOSURE'; color='var(--amber)'; }
+  else if(exposure > 30){ label='MODERATE EXPOSURE'; color='var(--cyan)'; }
+  else if(exposure > 5){ label='LOW EXPOSURE'; color='var(--green)'; }
+  else { label='HARDENED'; color='var(--green-bright)'; }
+  fill.style.background = color;
+  document.getElementById('threat-label').textContent = label;
+  document.getElementById('threat-label').style.color = color;
+
+  if(state.eggs.length){
+    var pe = document.getElementById('pill-egg');
+    pe.style.display = 'inline-flex';
+    pe.innerHTML = '<b>&#9670;</b>&nbsp;'+state.eggs.length+' easter egg'+(state.eggs.length>1?'s':'')+' found';
+  }
+
+  return {done:done, pct:pct};
+}
+
+/* =========================================================
+   ACHIEVEMENTS + TOASTS
+========================================================= */
+function toast(title, body){
+  var wrap = document.getElementById('toast-wrap');
+  var el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = '<div><b>'+title+'</b><div>'+body+'</div></div>';
+  wrap.appendChild(el);
+  beep();
+  setTimeout(function(){
+    el.style.transition='opacity .4s ease, transform .4s ease';
+    el.style.opacity='0'; el.style.transform='translateY(-8px)';
+    setTimeout(function(){ el.remove(); }, 420);
+  }, 3600);
+}
+function unlock(id, title, body){
+  if(state.achievements.indexOf(id) !== -1) return;
+  state.achievements.push(id);
+  saveState();
+  toast('ACHIEVEMENT UNLOCKED: '+title, body);
+}
+function foundEgg(id){
+  if(state.eggs.indexOf(id) === -1){
+    state.eggs.push(id);
+    saveState();
+    updateStats();
+    if(state.eggs.length >= 3) unlock('egg_hunter', 'EASTER HUNTER', 'You found 3 hidden easter eggs. There are more.');
+  }
+}
+
+/* =========================================================
+   PARTICLES + SOUND
+========================================================= */
+var audioCtx = null;
+function beep(freq){
+  if(state.muted) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    var o = audioCtx.createOscillator();
+    var g = audioCtx.createGain();
+    o.type = 'square';
+    o.frequency.value = freq || 720;
+    g.gain.value = 0.05;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.18);
+    o.stop(audioCtx.currentTime + 0.2);
+  }catch(e){}
+}
+function burst(x, y, color){
+  for(var i=0;i<10;i++){
+    var p = document.createElement('div');
+    p.className = 'particle';
+    var size = 3 + Math.random()*4;
+    p.style.width = size+'px'; p.style.height = size+'px';
+    p.style.left = x+'px'; p.style.top = y+'px';
+    p.style.background = color || (Math.random()>0.5 ? 'var(--green)' : 'var(--white)');
+    p.style.boxShadow = '0 0 8px currentColor';
+    document.body.appendChild(p);
+    var ang = Math.random()*Math.PI*2;
+    var dist = 30 + Math.random()*50;
+    var dx = Math.cos(ang)*dist, dy = Math.sin(ang)*dist;
+    var dur = 500 + Math.random()*400;
+    p.animate([
+      {transform:'translate(0,0)', opacity:1},
+      {transform:'translate('+dx+'px,'+dy+'px)', opacity:0}
+    ], {duration:dur, easing:'cubic-bezier(.2,.7,.3,1)'});
+    setTimeout(function(el){ return function(){ el.remove(); }; }(p), dur+50);
+  }
+}
+
+/* =========================================================
+   TOGGLE ITEM
+========================================================= */
+function toggleItem(it, checked){
+  state.checked[it.id] = checked;
+  saveState();
+  var itemEl = document.querySelector('[data-item="'+it.id+'"]');
+  if(itemEl) itemEl.classList.toggle('done', checked);
+
+  if(checked){
+    var rect = itemEl.getBoundingClientRect();
+    burst(rect.left+16, rect.top+16);
+    beep(820);
+    if(it.egg === 'grass') { foundEgg('grass'); toast('Nice.', 'Seriously though — go stretch. This one counts.'); }
+  } else {
+    beep(320);
+  }
+
+  var stats = updateStats();
+  if(stats.done === 1) unlock('first_step', 'INITIALIZED', 'First item checked off. The hardest part is starting.');
+
+  TIERS.forEach(function(tier){
+    var doneCount = tier.items.filter(function(x){ return !!state.checked[x.id]; }).length;
+    if(doneCount === tier.items.length){
+      unlock('tier_'+tier.id, tier.name+' CLEARED', 'Every item in '+tier.name+' is checked off.');
+    }
+  });
+
+  if(stats.done === TOTAL && !state.celebrated){
+    state.celebrated = true;
+    saveState();
+    celebrate();
+  }
+}
+
+function celebrate(){
+  var el = document.getElementById('celebrate');
+  el.classList.add('open');
+  unlock('full_clearance', 'DIGITAL GHOST', 'Every single item, cleared. Full clearance achieved.');
+  var end = Date.now() + 2200;
+  (function frame(){
+    burst(window.innerWidth*Math.random(), window.innerHeight*0.3 + Math.random()*80);
+    if(Date.now() < end) requestAnimationFrame(frame);
+  })();
+  setTimeout(function(){ el.classList.remove('open'); }, 4200);
+  el.addEventListener('click', function once(){ el.classList.remove('open'); el.removeEventListener('click', once); });
+}
+
+/* =========================================================
+   MATRIX RAIN
+========================================================= */
+(function matrixRain(){
+  var canvas = document.getElementById('matrix-rain');
+  var ctx = canvas.getContext('2d');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var chars = 'アイウエオカキクケコサシスセソ0123456789:.="*+-<>ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var fontSize = 15;
+  var cols, drops;
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    cols = Math.floor(canvas.width/fontSize);
+    drops = new Array(cols).fill(0).map(function(){ return Math.random()*-100; });
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  function draw(){
+    ctx.fillStyle = 'rgba(5,8,7,0.14)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    for(var i=0;i<cols;i++){
+      var isSpark = Math.random() < 0.02;
+      ctx.fillStyle = isSpark ? '#eafff2' : (Math.random()<0.08 ? '#8cffc0' : '#1fae5f');
+      ctx.font = fontSize+'px monospace';
+      var char = chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillText(char, i*fontSize, drops[i]*fontSize);
+      if(drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  if(!reduced){
+    setInterval(draw, 55);
+  } else {
+    ctx.fillStyle = 'rgba(5,8,7,1)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+  }
+})();
+
+/* =========================================================
+   VISIT COUNTER (db capability, graceful local fallback)
+========================================================= */
+function renderVisits(n, isLocal){
+  document.getElementById('stat-visits').textContent = n;
+  document.getElementById('stat-visits-label').textContent = isLocal ? 'visits (this browser)' : 'global visits';
+}
+(function initCounter(){
+  if(!(window.claude && window.claude.use)){
+    state.localVisits = (state.localVisits||0)+1; saveState();
+    renderVisits(state.localVisits, true);
+    return;
+  }
+  window.claude.use('db').then(function(db){
+    if(!db){
+      state.localVisits = (state.localVisits||0)+1; saveState();
+      renderVisits(state.localVisits, true);
+      return;
+    }
+    var ref = db.doc('stats/global');
+    ref.get().then(function(snap){
+      var current = (snap.exists && snap.data() && snap.data().visits) || 0;
+      var next = current + 1;
+      ref.set({visits: next, lastVisit: new Date().toISOString()}).catch(function(){});
+      renderVisits(next, false);
+    }).catch(function(){
+      state.localVisits = (state.localVisits||0)+1; saveState();
+      renderVisits(state.localVisits, true);
+    });
+  }).catch(function(){
+    state.localVisits = (state.localVisits||0)+1; saveState();
+    renderVisits(state.localVisits, true);
+  });
+})();
+
+/* =========================================================
+   TERMINAL + EASTER EGGS
+========================================================= */
+var termPanel = document.getElementById('term-panel');
+var termLog = document.getElementById('term-log');
+var termInput = document.getElementById('term-input');
+var termOpenedOnce = false;
+
+function termPrint(html){
+  var d = document.createElement('div');
+  d.innerHTML = html;
+  termLog.appendChild(d);
+  termLog.scrollTop = termLog.scrollHeight;
+}
+function termPrintCmd(cmd){
+  var d = document.createElement('div');
+  d.className = 'cmd';
+  d.textContent = cmd;
+  termLog.appendChild(d);
+  termLog.scrollTop = termLog.scrollHeight;
+}
+
+document.getElementById('term-launcher').addEventListener('click', function(){
+  termPanel.classList.toggle('open');
+  if(termPanel.classList.contains('open')){
+    termInput.focus();
+    if(!termOpenedOnce){
+      termOpenedOnce = true;
+      termPrint('<div style="color:var(--green-bright)">GHOST_PROTOCOL TERMINAL v1.0</div><div>Type <b>help</b> for commands.</div>');
+      foundEgg('terminal');
+    }
+  }
+});
+document.getElementById('term-close').addEventListener('click', function(){ termPanel.classList.remove('open'); });
+
+var COMMANDS = {
+  help: function(){
+    return 'Commands: help, whoami, rank, progress, achievements, matrix, neo, sudo, credits, clear, exit';
+  },
+  whoami: function(){ return 'guest-operator &middot; clearance level: '+document.getElementById('stat-rank').textContent; },
+  rank: function(){ var d=updateStats(); return document.getElementById('rank-name').textContent+' &mdash; '+d.pct+'% secured'; },
+  progress: function(){ var d=updateStats(); return d.done+'/'+TOTAL+' items cleared ('+d.pct+'%)'; },
+  achievements: function(){ return state.achievements.length ? state.achievements.join(', ') : 'none yet — check off an item to start.'; },
+  sudo: function(){ return 'Nice try. This terminal is decorative, not a real shell. Permission denied.'; },
+  credits: function(){ showCredits(); return 'Opening credits panel&hellip;'; },
+  clear: function(){ termLog.innerHTML=''; return null; },
+  exit: function(){ termPanel.classList.remove('open'); return null; },
+  neo: function(){ foundEgg('neo'); document.body.classList.toggle('invert-mode'); return 'There is no spoon.'; },
+  matrix: function(){ foundEgg('matrix_cmd'); flashMatrixTakeover(); return 'Wake up...'; }
+};
+termInput.addEventListener('keydown', function(e){
+  if(e.key !== 'Enter') return;
+  var raw = termInput.value;
+  var cmd = raw.trim().toLowerCase();
+  if(!cmd) return;
+  termPrintCmd(raw);
+  termInput.value = '';
+  if(COMMANDS[cmd]){
+    var out = COMMANDS[cmd]();
+    if(out) termPrint('<div>'+out+'</div>');
+  } else {
+    termPrint('<div style="color:var(--danger)">command not found: '+cmd.replace(/</g,'&lt;')+'</div>');
+  }
+});
+
+function flashMatrixTakeover(){
+  var canvas = document.getElementById('matrix-rain');
+  canvas.style.transition = 'opacity .3s ease';
+  canvas.style.opacity = '1';
+  canvas.style.zIndex = '65';
+  setTimeout(function(){
+    canvas.style.opacity = '.5';
+    canvas.style.zIndex = '0';
+  }, 2200);
+}
+
+/* Logo click easter egg: 5 clicks within 1.5s opens credits */
+var logoClicks = 0, logoTimer = null;
+document.getElementById('logo-btn').addEventListener('click', function(){
+  logoClicks++;
+  clearTimeout(logoTimer);
+  logoTimer = setTimeout(function(){ logoClicks = 0; }, 1500);
+  if(logoClicks >= 5){
+    logoClicks = 0;
+    foundEgg('logo_click');
+    showCredits();
+  }
+});
+
+function showCredits(){
+  toast('ACCESS GRANTED', 'Built by Claude for Audra &middot; open-sourced on GitHub. Thanks for looking closely.');
+}
+
+/* Hidden pixel bug easter egg */
+document.getElementById('hidden-bug').addEventListener('click', function(){
+  foundEgg('bug');
+  unlock('bug_hunter', 'BUG BOUNTY', 'You found the hidden pixel. There was never really a bug — just you, paying attention.');
+});
+
+/* Konami code easter egg */
+(function konami(){
+  var seq = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  var pos = 0;
+  document.addEventListener('keydown', function(e){
+    var key = e.key;
+    if(key === seq[pos] || key.toLowerCase() === seq[pos]){
+      pos++;
+      if(pos === seq.length){
+        pos = 0;
+        foundEgg('konami');
+        flashMatrixTakeover();
+        unlock('konami', 'THE OLD CODE', 'Up up down down left right left right B A. Some things never change.');
+      }
+    } else {
+      pos = (key === seq[0]) ? 1 : 0;
+    }
+  });
+})();
+
+/* Console easter egg */
+console.log('%c GHOST_PROTOCOL ', 'background:#3cff8e;color:#04140a;font-weight:bold;padding:2px 8px;border-radius:3px;');
+console.log('%cCurious. Try the terminal in the corner — type "help".', 'color:#8cffc0;font-family:monospace;');
+
+/* =========================================================
+   RESET
+========================================================= */
+var resetModal = document.getElementById('reset-modal');
+document.getElementById('reset-btn').addEventListener('click', function(){ resetModal.classList.add('open'); });
+document.getElementById('reset-cancel').addEventListener('click', function(){ resetModal.classList.remove('open'); });
+document.getElementById('reset-confirm').addEventListener('click', function(){
+  var eggs = state.eggs, ach = state.achievements, lv = state.localVisits;
+  state = defaultState();
+  state.eggs = eggs; state.achievements = ach; state.localVisits = lv; // keep meta progress
+  saveState();
+  resetModal.classList.remove('open');
+  renderTiers();
+  updateStats();
+  toast('WIPED', 'Local progress cleared. Fresh start.');
+});
+
+/* =========================================================
+   INIT
+========================================================= */
+renderTiers();
+updateStats();
+
+})();
+</script>
+</body>
+</html>

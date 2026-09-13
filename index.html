@@ -178,11 +178,11 @@
   .tier-progress{height:3px; background:var(--surface-2);}
   .tier-progress i{display:block; height:100%; background:var(--tier-accent, var(--green)); width:0%; transition:width .5s ease;}
   .tier-body{
-    max-height:0; overflow:hidden; transition:max-height .35s ease;
+    display:grid; grid-template-rows:0fr; transition:grid-template-rows .35s ease;
     border-top:1px solid var(--border-soft);
   }
-  .tier.open .tier-body{border-top:1px solid var(--border-soft);}
-  .tier-body-inner{padding:6px 10px 10px;}
+  .tier.open .tier-body{border-top:1px solid var(--border-soft); grid-template-rows:1fr;}
+  .tier-body-inner{padding:6px 10px 10px; overflow:hidden; min-height:0;}
 
   .item{border-bottom:1px solid var(--border-soft);}
   .item:last-child{border-bottom:none;}
@@ -213,11 +213,11 @@
   .item-info:hover{color:var(--green-bright); border-color:var(--green-dim);}
   .item.expanded .item-info{transform:rotate(45deg); color:var(--green-bright);}
   .item-detail{
-    max-height:0; overflow:hidden; transition:max-height .3s ease;
+    display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s ease;
     font-size:12.5px; color:var(--text); padding-left:0;
   }
-  .item.expanded .item-detail{max-height:200px;}
-  .item-detail-inner{padding:8px 12px; margin-top:6px; border-left:2px solid var(--green-dim); background:rgba(var(--green-rgb),.04);}
+  .item.expanded .item-detail{grid-template-rows:1fr;}
+  .item-detail-inner{padding:8px 12px; margin-top:6px; border-left:2px solid var(--green-dim); background:rgba(var(--green-rgb),.04); overflow:hidden; min-height:0;}
   .custom-tag{font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--cyan); border:1px solid var(--cyan); border-radius:99px; padding:1px 6px; margin-left:6px; vertical-align:middle;}
   .item-remove{
     flex:none; width:20px; height:20px; border-radius:50%; border:1px solid var(--border);
@@ -283,13 +283,14 @@
   }
   .term-launcher:hover{transform:scale(1.06);}
   #white-rabbit{
-    position:fixed; bottom:8px; left:-60px; z-index:41; font-size:26px; cursor:pointer;
+    position:fixed; bottom:8px; left:-60px; z-index:41; cursor:pointer;
     display:none; user-select:none; -webkit-user-select:none; line-height:1;
-    filter:drop-shadow(0 0 6px rgba(255,255,255,.7)); transform:scaleX(-1);
+    color:var(--green-bright); filter:drop-shadow(0 0 5px currentColor);
     background:none; border:none; padding:4px;
   }
+  #white-rabbit svg{display:block; width:28px; height:28px; transform:scaleX(-1);}
   #white-rabbit.running{display:block;}
-  #white-rabbit:hover{filter:drop-shadow(0 0 10px rgba(255,255,255,.95));}
+  #white-rabbit:hover{filter:drop-shadow(0 0 9px currentColor);}
   .term-panel{
     position:fixed; right:18px; bottom:82px; z-index:40;
     width:min(360px, calc(100vw - 36px)); height:min(320px, 50vh);
@@ -418,7 +419,18 @@
   </footer>
 </div>
 
-<button id="white-rabbit" aria-label="A white rabbit. Catch it." title="?">&#128007;</button>
+<button id="white-rabbit" aria-label="A white rabbit. Catch it." title="?">
+  <svg viewBox="0 0 8 8" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
+    <rect x="2" y="0" width="1" height="1"/><rect x="3" y="0" width="1" height="1"/>
+    <rect x="2" y="1" width="1" height="1"/><rect x="3" y="1" width="1" height="1"/>
+    <rect x="1" y="2" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/>
+    <rect x="0" y="3" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="3" width="1" height="1"/>
+    <rect x="0" y="4" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/>
+    <rect x="1" y="5" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/>
+    <rect x="2" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/>
+    <rect x="2" y="7" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/>
+  </svg>
+</button>
 <button class="term-launcher" id="term-launcher" aria-label="Open terminal" title="Open terminal">&gt;_</button>
 <div class="term-panel" id="term-panel">
   <div class="term-bar">
@@ -579,11 +591,13 @@ function hslToRgb(h, s, l){
 function applyTheme(hue){
   var root = document.documentElement.style;
   if(hue === null || hue === undefined){
-    ['--green','--green-dim','--green-bright','--green-rgb','--text','--border','--border-soft'].forEach(function(p){ root.removeProperty(p); });
+    ['--green','--green-dim','--green-bright','--green-rgb','--text','--border','--border-soft','--danger','--amber','--cyan','--magenta'].forEach(function(p){ root.removeProperty(p); });
     window.__matrixBright = '#8cffc0';
     window.__matrixDim = '#1fae5f';
     return;
   }
+  // one color, everywhere — including the tier accents and threat-meter
+  // states, which otherwise stay red/amber/cyan/magenta regardless of theme
   root.setProperty('--green', 'hsl('+hue+',90%,62%)');
   root.setProperty('--green-dim', 'hsl('+hue+',70%,28%)');
   root.setProperty('--green-bright', 'hsl('+hue+',95%,78%)');
@@ -591,6 +605,10 @@ function applyTheme(hue){
   root.setProperty('--text', 'hsl('+hue+',55%,84%)');
   root.setProperty('--border', 'hsl('+hue+',45%,18%)');
   root.setProperty('--border-soft', 'hsl('+hue+',40%,12%)');
+  root.setProperty('--danger', 'hsl('+hue+',90%,62%)');
+  root.setProperty('--amber', 'hsl('+hue+',90%,62%)');
+  root.setProperty('--cyan', 'hsl('+hue+',95%,78%)');
+  root.setProperty('--magenta', 'hsl('+hue+',90%,62%)');
   window.__matrixBright = 'hsl('+hue+',95%,80%)';
   window.__matrixDim = 'hsl('+hue+',75%,42%)';
 }
@@ -720,13 +738,7 @@ function renderTiers(){
       var sec = document.getElementById('tier-'+tid);
       sec.classList.toggle('open', !!state.expanded[key]);
       el.setAttribute('aria-expanded', !!state.expanded[key]);
-      var body = sec.querySelector('.tier-body');
-      body.style.maxHeight = state.expanded[key] ? body.scrollHeight+'px' : '0px';
     });
-  });
-  // set initial max-heights for open tiers
-  Array.prototype.forEach.call(document.querySelectorAll('.tier.open .tier-body'), function(body){
-    body.style.maxHeight = body.scrollHeight+'px';
   });
 
   // wire remove/hide buttons
@@ -806,11 +818,9 @@ function renderTiers(){
 }
 
 function reflowOpenTier(tid){
-  var sec = document.getElementById('tier-'+tid);
-  if(sec && sec.classList.contains('open')){
-    var body = sec.querySelector('.tier-body');
-    body.style.maxHeight = body.scrollHeight+'px';
-  }
+  // no-op: .tier-body auto-sizes to its content via CSS grid (0fr/1fr),
+  // so nothing needs to be measured or set here. Kept as a stable no-op
+  // since other code still calls it after content changes.
 }
 
 /* =========================================================
@@ -1467,7 +1477,7 @@ renderSoundIcon();
   var running = false;
   var doneTimer = null;
   function scheduleRun(){
-    var delay = 45000 + Math.random()*75000;
+    var delay = 450000 + Math.random()*750000; // roughly every 7.5-20 min — 10x rarer than before
     setTimeout(runOnce, delay);
   }
   function runOnce(){

@@ -83,6 +83,13 @@
   }
   .hud-logo svg{width:20px; height:20px; filter:drop-shadow(0 0 6px rgba(60,255,142,.55));}
   .hud-stats{display:flex; align-items:center; gap:16px; margin-left:auto; flex-wrap:wrap; font-size:11.5px; color:var(--text-dim);}
+  .sound-toggle{
+    flex:none; width:30px; height:30px; border-radius:50%; margin-left:6px;
+    border:1px solid var(--border); background:var(--surface-2); color:var(--text-dim);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .sound-toggle:hover{color:var(--green-bright); border-color:var(--green-dim);}
+  .sound-toggle svg{width:16px; height:16px;}
   .hud-stat{display:flex; flex-direction:column; align-items:flex-end; gap:1px;}
   .hud-stat b{
     font-family:var(--display); font-size:14px; color:var(--green-bright); letter-spacing:.03em;
@@ -325,6 +332,10 @@
       <div class="hud-stat"><b id="stat-visits">&mdash;</b><span id="stat-visits-label">visits</span></div>
       <div class="hud-stat"><b id="stat-rank">NOVICE</b><span>clearance</span></div>
     </div>
+    <button class="sound-toggle" id="sound-toggle" aria-label="Toggle sound effects" title="Toggle sound effects">
+      <svg id="sound-icon-on" viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 010 7M19 6a9 9 0 010 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <svg id="sound-icon-off" viewBox="0 0 24 24" fill="none" style="display:none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
   </div>
 </div>
 
@@ -481,7 +492,7 @@ var STORE_KEY = 'ghost_protocol_state_v1';
 var state = loadState();
 
 function defaultState(){
-  return { checked:{}, expanded:{}, eggs:[], achievements:[], muted:true, localVisits:0, celebrated:false };
+  return { checked:{}, expanded:{}, eggs:[], achievements:[], muted:false, localVisits:0, celebrated:false };
 }
 function loadState(){
   try{
@@ -642,13 +653,15 @@ function updateStats(){
 /* =========================================================
    ACHIEVEMENTS + TOASTS
 ========================================================= */
-function toast(title, body){
+function toast(title, body, kind){
   var wrap = document.getElementById('toast-wrap');
   var el = document.createElement('div');
   el.className = 'toast';
   el.innerHTML = '<div><b>'+title+'</b><div>'+body+'</div></div>';
   wrap.appendChild(el);
-  beep();
+  if(kind === 'achievement') Sound.achievement();
+  else if(kind === 'egg') Sound.egg();
+  else Sound.notify();
   setTimeout(function(){
     el.style.transition='opacity .4s ease, transform .4s ease';
     el.style.opacity='0'; el.style.transform='translateY(-8px)';
@@ -659,13 +672,14 @@ function unlock(id, title, body){
   if(state.achievements.indexOf(id) !== -1) return;
   state.achievements.push(id);
   saveState();
-  toast('ACHIEVEMENT UNLOCKED: '+title, body);
+  toast('ACHIEVEMENT UNLOCKED: '+title, body, 'achievement');
 }
 function foundEgg(id){
   if(state.eggs.indexOf(id) === -1){
     state.eggs.push(id);
     saveState();
     updateStats();
+    Sound.egg();
     if(state.eggs.length >= 3) unlock('egg_hunter', 'EASTER HUNTER', 'You found 3 hidden easter eggs. There are more.');
   }
 }
@@ -673,22 +687,57 @@ function foundEgg(id){
 /* =========================================================
    PARTICLES + SOUND
 ========================================================= */
-var audioCtx = null;
-function beep(freq){
-  if(state.muted) return;
-  try{
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    var o = audioCtx.createOscillator();
-    var g = audioCtx.createGain();
-    o.type = 'square';
-    o.frequency.value = freq || 720;
-    g.gain.value = 0.05;
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start();
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.18);
-    o.stop(audioCtx.currentTime + 0.2);
-  }catch(e){}
-}
+var Sound = (function(){
+  var ctx = null;
+  function ensureCtx(){
+    if(!ctx){ ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+    if(ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function tone(freq, opts){
+    if(state.muted) return;
+    opts = opts || {};
+    try{
+      var c = ensureCtx();
+      var dur = opts.dur || 0.15;
+      var t0 = c.currentTime + (opts.delay || 0);
+      var o = c.createOscillator();
+      var g = c.createGain();
+      o.type = opts.type || 'square';
+      o.frequency.setValueAtTime(freq, t0);
+      if(opts.slideTo) o.frequency.exponentialRampToValueAtTime(opts.slideTo, t0 + dur);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(opts.vol || 0.05, t0 + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(c.destination);
+      o.start(t0);
+      o.stop(t0 + dur + 0.03);
+    }catch(e){}
+  }
+  function seq(notes){ notes.forEach(function(n){ tone(n.freq, n); }); }
+  return {
+    check: function(){ seq([{freq:640,dur:.055,delay:0,type:'square',vol:.05},{freq:960,dur:.08,delay:.05,type:'square',vol:.05}]); },
+    uncheck: function(){ tone(260,{dur:.12,type:'square',vol:.045}); },
+    notify: function(){ tone(880,{dur:.09,type:'sine',vol:.04}); },
+    achievement: function(){ seq([
+      {freq:660,dur:.09,delay:0,type:'triangle',vol:.06},
+      {freq:880,dur:.09,delay:.09,type:'triangle',vol:.06},
+      {freq:1318,dur:.18,delay:.18,type:'triangle',vol:.07}
+    ]); },
+    egg: function(){ seq([{freq:1046,dur:.05,delay:0,type:'sine',vol:.05},{freq:1568,dur:.09,delay:.06,type:'sine',vol:.05}]); },
+    termOpen: function(){ tone(220,{dur:.2,type:'sawtooth',vol:.035,slideTo:660}); },
+    termClose: function(){ tone(440,{dur:.15,type:'sawtooth',vol:.03,slideTo:150}); },
+    termOk: function(){ tone(720,{dur:.05,type:'square',vol:.03}); },
+    termError: function(){ tone(180,{dur:.25,type:'sawtooth',vol:.05,slideTo:70}); },
+    riser: function(){ tone(120,{dur:.9,type:'sawtooth',vol:.045,slideTo:960}); },
+    celebrate: function(){ seq([
+      {freq:523,dur:.12,delay:0,type:'triangle',vol:.07},
+      {freq:659,dur:.12,delay:.12,type:'triangle',vol:.07},
+      {freq:784,dur:.12,delay:.24,type:'triangle',vol:.07},
+      {freq:1047,dur:.35,delay:.36,type:'triangle',vol:.08}
+    ]); }
+  };
+})();
 function burst(x, y, color){
   for(var i=0;i<10;i++){
     var p = document.createElement('div');
@@ -723,10 +772,10 @@ function toggleItem(it, checked){
   if(checked){
     var rect = itemEl.getBoundingClientRect();
     burst(rect.left+16, rect.top+16);
-    beep(820);
+    Sound.check();
     if(it.egg === 'grass') { foundEgg('grass'); toast('Nice.', 'Seriously though — go stretch. This one counts.'); }
   } else {
-    beep(320);
+    Sound.uncheck();
   }
 
   var stats = updateStats();
@@ -749,6 +798,7 @@ function toggleItem(it, checked){
 function celebrate(){
   var el = document.getElementById('celebrate');
   el.classList.add('open');
+  Sound.celebrate();
   unlock('full_clearance', 'DIGITAL GHOST', 'Every single item, cleared. Full clearance achieved.');
   var end = Date.now() + 2200;
   (function frame(){
@@ -858,15 +908,18 @@ function termPrintCmd(cmd){
 document.getElementById('term-launcher').addEventListener('click', function(){
   termPanel.classList.toggle('open');
   if(termPanel.classList.contains('open')){
+    Sound.termOpen();
     termInput.focus();
     if(!termOpenedOnce){
       termOpenedOnce = true;
       termPrint('<div style="color:var(--green-bright)">GHOST_PROTOCOL TERMINAL v1.0</div><div>Type <b>help</b> for commands.</div>');
       foundEgg('terminal');
     }
+  } else {
+    Sound.termClose();
   }
 });
-document.getElementById('term-close').addEventListener('click', function(){ termPanel.classList.remove('open'); });
+document.getElementById('term-close').addEventListener('click', function(){ Sound.termClose(); termPanel.classList.remove('open'); });
 
 var COMMANDS = {
   help: function(){
@@ -891,14 +944,17 @@ termInput.addEventListener('keydown', function(e){
   termPrintCmd(raw);
   termInput.value = '';
   if(COMMANDS[cmd]){
+    Sound.termOk();
     var out = COMMANDS[cmd]();
     if(out) termPrint('<div>'+out+'</div>');
   } else {
+    Sound.termError();
     termPrint('<div style="color:var(--danger)">command not found: '+cmd.replace(/</g,'&lt;')+'</div>');
   }
 });
 
 function flashMatrixTakeover(){
+  Sound.riser();
   var canvas = document.getElementById('matrix-rain');
   canvas.style.transition = 'opacity .3s ease';
   canvas.style.opacity = '1';
@@ -963,15 +1019,32 @@ var resetModal = document.getElementById('reset-modal');
 document.getElementById('reset-btn').addEventListener('click', function(){ resetModal.classList.add('open'); });
 document.getElementById('reset-cancel').addEventListener('click', function(){ resetModal.classList.remove('open'); });
 document.getElementById('reset-confirm').addEventListener('click', function(){
-  var eggs = state.eggs, ach = state.achievements, lv = state.localVisits;
+  var eggs = state.eggs, ach = state.achievements, lv = state.localVisits, muted = state.muted;
   state = defaultState();
-  state.eggs = eggs; state.achievements = ach; state.localVisits = lv; // keep meta progress
+  state.eggs = eggs; state.achievements = ach; state.localVisits = lv; state.muted = muted; // keep meta + prefs
   saveState();
   resetModal.classList.remove('open');
   renderTiers();
   updateStats();
   toast('WIPED', 'Local progress cleared. Fresh start.');
 });
+
+/* =========================================================
+   SOUND TOGGLE
+========================================================= */
+var soundOn = document.getElementById('sound-icon-on');
+var soundOff = document.getElementById('sound-icon-off');
+function renderSoundIcon(){
+  soundOn.style.display = state.muted ? 'none' : '';
+  soundOff.style.display = state.muted ? '' : 'none';
+}
+document.getElementById('sound-toggle').addEventListener('click', function(){
+  state.muted = !state.muted;
+  saveState();
+  renderSoundIcon();
+  if(!state.muted) Sound.notify();
+});
+renderSoundIcon();
 
 /* =========================================================
    INIT

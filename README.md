@@ -15,6 +15,16 @@ A single-file, self-contained, interactive personal cybersecurity checklist. Mat
 
 Each item expands (click the **+**) to explain *why* it matters, not just what to do — and the specific tools/services it mentions (password managers, encryption tools, breach-check sites, etc.) are hyperlinked straight to their current official pages.
 
+## Customize each tier
+
+Every tier can be reshaped to fit your actual life:
+
+- **×** on any item hides it from view. It's not deleted — it "remains" in your saved data, and you can bring it back anytime from the "N hidden — show" link at the bottom of that tier.
+- **+ Add item** lets you add your own item to a tier — title, optional one-line note, optional detail — for anything specific to you (a particular account, device, or habit) that isn't already covered.
+- **✦ AI suggest** asks the AI chat to propose several new, non-duplicate items for that tier — often broken out per-account (e.g. one item each for your email, bank, work SSO, socials) rather than one vague catch-all — and lets you pick which ones to actually add. Like the terminal chat, this needs the live AI-connected version of the page.
+
+Hiding or adding items changes what counts toward your percentage and rank — hide something that doesn't apply to you and it stops being held against your score; add something and it becomes part of your checklist, same as anything built in.
+
 ## AI chat
 
 The bottom-right terminal (`>_`) doubles as a chat assistant — ask it anything about the checklist or security in general and it'll answer in-terminal. It runs on Claude's built-in Artifact chat capability (no API key, no separate backend, no meaningful token cost), so it only works on the live Artifact-hosted version, not a plain static copy of `index.html`. If it's unavailable in a given viewer's context, the terminal quietly falls back to its fixed command set.

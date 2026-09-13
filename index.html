@@ -218,6 +218,46 @@
   }
   .item.expanded .item-detail{max-height:200px;}
   .item-detail-inner{padding:8px 12px; margin-top:6px; border-left:2px solid var(--green-dim); background:rgba(var(--green-rgb),.04);}
+  .custom-tag{font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--cyan); border:1px solid var(--cyan); border-radius:99px; padding:1px 6px; margin-left:6px; vertical-align:middle;}
+  .item-remove{
+    flex:none; width:20px; height:20px; border-radius:50%; border:1px solid var(--border);
+    background:none; color:var(--text-dim); cursor:pointer; font-size:10px;
+    display:flex; align-items:center; justify-content:center; opacity:.55; transition:opacity .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .item-remove:hover{opacity:1; color:var(--danger); border-color:var(--danger);}
+  .tier-toolbar{display:flex; flex-wrap:wrap; gap:8px; padding:10px 6px 4px;}
+  .tier-tool-btn{
+    background:none; border:1px dashed var(--border); color:var(--text-dim); border-radius:6px;
+    padding:6px 11px; font-size:11px; cursor:pointer; font-family:var(--mono); letter-spacing:.02em;
+  }
+  .tier-tool-btn:hover{border-color:var(--green-dim); color:var(--green-bright);}
+  .tier-tool-btn.suggest:hover{border-color:var(--cyan); color:var(--cyan);}
+  .tier-tool-btn.ghost{border-style:solid; opacity:.75;}
+  .tier-add-form{padding:10px 6px 4px; display:flex; flex-direction:column; gap:8px;}
+  .add-input{
+    width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:6px;
+    color:var(--text); font-family:var(--mono); font-size:12.5px; padding:8px 10px; resize:vertical;
+  }
+  .add-input:focus{outline:none; border-color:var(--green-dim);}
+  .tier-add-actions{display:flex; gap:8px; justify-content:flex-end;}
+  .btn-add{background:rgba(var(--green-rgb),.14); border-color:var(--green-dim); color:var(--green-bright);}
+  .hidden-list{padding:2px 6px 8px; display:flex; flex-direction:column; gap:4px;}
+  .hidden-row{
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    font-size:12px; color:var(--text-dim); padding:4px 8px; border:1px solid var(--border-soft); border-radius:6px;
+  }
+  .restore-btn{background:none; border:1px solid var(--border); color:var(--text-dim); border-radius:6px; padding:3px 9px; font-size:10.5px; cursor:pointer; font-family:var(--mono);}
+  .restore-btn:hover{border-color:var(--green-dim); color:var(--green-bright);}
+  .suggest-panel{padding:8px 6px 10px;}
+  .suggest-note{font-size:12px; color:var(--text-dim); margin-bottom:8px;}
+  .suggest-list{display:flex; flex-direction:column; gap:6px; margin-bottom:10px;}
+  .suggest-item{
+    display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border:1px solid var(--border);
+    border-radius:6px; background:var(--surface-2); cursor:pointer; font-size:12.5px;
+  }
+  .suggest-item input{margin-top:3px;}
+  .suggest-item b{color:var(--white); display:block; font-weight:600;}
+  .suggest-item small{color:var(--text-dim); font-size:11px;}
 
   /* ---------- footer ---------- */
   footer{margin-top:36px; padding-top:20px; border-top:1px dashed var(--border-soft); font-size:11.5px; color:var(--text-dim);}
@@ -504,7 +544,7 @@ var STORE_KEY = 'ghost_protocol_state_v1';
 var state = loadState();
 
 function defaultState(){
-  return { checked:{}, expanded:{}, eggs:[], achievements:[], muted:false, localVisits:0, celebrated:false, rabbitCatches:0, themeHue:null, neoCalls:0 };
+  return { checked:{}, expanded:{}, eggs:[], achievements:[], muted:false, localVisits:0, celebrated:false, rabbitCatches:0, themeHue:null, neoCalls:0, hidden:{}, customItems:{}, hiddenListOpen:{} };
 }
 function loadState(){
   try{
@@ -565,6 +605,24 @@ TIERS.forEach(function(tier){
 });
 var TOTAL = ALL_ITEMS.length;
 
+function tierAllItems(tier){
+  var visible = tier.items.filter(function(it){ return !state.hidden[it.id]; });
+  return visible.concat(state.customItems[tier.id] || []);
+}
+function effectiveAllItems(){
+  var arr = [];
+  TIERS.forEach(function(tier){ arr = arr.concat(tierAllItems(tier)); });
+  return arr;
+}
+function itemLookup(id){
+  var found = null;
+  TIERS.forEach(function(tier){
+    tier.items.forEach(function(it){ if(it.id === id) found = it; });
+    (state.customItems[tier.id] || []).forEach(function(it){ if(it.id === id) found = it; });
+  });
+  return found;
+}
+
 /* =========================================================
    RENDER
 ========================================================= */
@@ -577,40 +635,64 @@ function iconChevron(){
 function renderTiers(){
   var html = '';
   TIERS.forEach(function(tier){
-    var doneCount = tier.items.filter(function(it){ return !!state.checked[it.id]; }).length;
+    var items = tierAllItems(tier);
+    var doneCount = items.filter(function(it){ return !!state.checked[it.id]; }).length;
+    var hiddenCount = tier.items.filter(function(it){ return !!state.hidden[it.id]; }).length;
     var openClass = state.expanded['tier_'+tier.id] ? ' open' : '';
     html += '<section class="tier'+openClass+'" id="tier-'+tier.id+'" style="--tier-accent:'+tier.accent+'">';
     html += '  <button class="tier-head" data-tier="'+tier.id+'" aria-expanded="'+(!!state.expanded['tier_'+tier.id])+'">';
     html += '    <span class="tier-idx">'+tier.code+'</span>';
     html += '    <span class="tier-titles"><div class="name">'+tier.name+'</div><div class="tag">'+tier.tag+'</div></span>';
-    html += '    <span class="tier-count">'+doneCount+'/'+tier.items.length+'</span>';
+    html += '    <span class="tier-count">'+doneCount+'/'+items.length+'</span>';
     html +=      iconChevron();
     html += '  </button>';
-    html += '  <div class="tier-progress"><i style="width:'+Math.round(doneCount/tier.items.length*100)+'%"></i></div>';
+    html += '  <div class="tier-progress"><i style="width:'+Math.round(doneCount/Math.max(1,items.length)*100)+'%"></i></div>';
     html += '  <div class="tier-body"><div class="tier-body-inner">';
-    tier.items.forEach(function(it){
+    items.forEach(function(it){
       var checked = !!state.checked[it.id];
       var expanded = !!state.expanded[it.id];
-      html += '<div class="item'+(checked?' done':'')+(expanded?' expanded':'')+'" data-item="'+it.id+'">';
+      html += '<div class="item'+(checked?' done':'')+(expanded?' expanded':'')+(it.custom?' custom':'')+'" data-item="'+it.id+'">';
       html += '  <div class="item-row">';
       html += '    <input type="checkbox" class="chk" id="chk-'+it.id+'" '+(checked?'checked':'')+' aria-label="'+it.t.replace(/"/g,'&quot;')+'"/>';
       html += '    <div class="item-main">';
       html += '      <div class="item-head" data-toggle="'+it.id+'">';
-      html += '        <div style="flex:1;"><div class="item-title">'+it.t+'</div><div class="item-blurb">'+it.b+'</div></div>';
-      html += '        <button class="item-info" data-toggle="'+it.id+'" aria-label="More detail">+</button>';
+      html += '        <div style="flex:1;"><div class="item-title">'+it.t+(it.custom?' <span class="custom-tag">custom</span>':'')+'</div>'+(it.b?'<div class="item-blurb">'+it.b+'</div>':'')+'</div>';
+      if(it.d) html += '        <button class="item-info" data-toggle="'+it.id+'" aria-label="More detail">+</button>';
+      html += '        <button class="item-remove" data-remove="'+it.id+'" data-tier="'+tier.id+'" data-custom="'+(it.custom?'1':'0')+'" aria-label="'+(it.custom?'Delete this item':'Hide this item')+'" title="'+(it.custom?'Delete this item':'Hide this item (you can restore it later)')+'">&#10005;</button>';
       html += '      </div>';
-      html += '      <div class="item-detail"><div class="item-detail-inner">'+it.d+'</div></div>';
+      if(it.d) html += '      <div class="item-detail"><div class="item-detail-inner">'+it.d+'</div></div>';
       html += '    </div>';
       html += '  </div>';
       html += '</div>';
     });
+    html += '    <div class="tier-toolbar">';
+    html += '      <button class="tier-tool-btn" data-add-tier="'+tier.id+'">+ Add item</button>';
+    html += '      <button class="tier-tool-btn suggest" data-suggest-tier="'+tier.id+'">&#10022; AI suggest</button>';
+    if(hiddenCount > 0){
+      html += '      <button class="tier-tool-btn ghost" data-hidden-tier="'+tier.id+'">'+hiddenCount+' hidden &mdash; '+(state.hiddenListOpen[tier.id]?'hide':'show')+'</button>';
+    }
+    html += '    </div>';
+    html += '    <div class="tier-add-form" id="add-form-'+tier.id+'" style="display:none;">';
+    html += '      <input type="text" class="add-input" id="add-title-'+tier.id+'" placeholder="Item title (e.g. Enable MFA on my crypto exchange)" maxlength="120">';
+    html += '      <input type="text" class="add-input" id="add-blurb-'+tier.id+'" placeholder="Short one-line note (optional)" maxlength="160">';
+    html += '      <textarea class="add-input" id="add-detail-'+tier.id+'" placeholder="Why it matters / how to do it (optional)" rows="2" maxlength="600"></textarea>';
+    html += '      <div class="tier-add-actions"><button class="btn btn-ghost" data-cancel-add="'+tier.id+'">Cancel</button><button class="btn btn-add" data-submit-add="'+tier.id+'">Add to checklist</button></div>';
+    html += '    </div>';
+    if(hiddenCount > 0 && state.hiddenListOpen[tier.id]){
+      html += '    <div class="hidden-list">';
+      tier.items.filter(function(it){ return !!state.hidden[it.id]; }).forEach(function(it){
+        html += '<div class="hidden-row"><span>'+it.t+'</span><button class="restore-btn" data-restore="'+it.id+'">+ restore</button></div>';
+      });
+      html += '    </div>';
+    }
+    html += '    <div class="suggest-panel" id="suggest-panel-'+tier.id+'" style="display:none;"></div>';
     html += '  </div></div>';
     html += '</section>';
   });
   tiersEl.innerHTML = html;
 
   // wire checkboxes
-  ALL_ITEMS.forEach(function(it){
+  effectiveAllItems().forEach(function(it){
     var cb = document.getElementById('chk-'+it.id);
     if(cb){
       cb.addEventListener('change', function(e){ toggleItem(it, e.target.checked); });
@@ -646,24 +728,211 @@ function renderTiers(){
   Array.prototype.forEach.call(document.querySelectorAll('.tier.open .tier-body'), function(body){
     body.style.maxHeight = body.scrollHeight+'px';
   });
+
+  // wire remove/hide buttons
+  Array.prototype.forEach.call(document.querySelectorAll('[data-remove]'), function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      var id = el.getAttribute('data-remove');
+      var tid = el.getAttribute('data-tier');
+      var custom = el.getAttribute('data-custom') === '1';
+      if(custom){
+        state.customItems[tid] = (state.customItems[tid]||[]).filter(function(it){ return it.id !== id; });
+        saveState();
+        renderTiers(); updateStats();
+      } else {
+        state.hidden[id] = true;
+        saveState();
+        renderTiers(); updateStats();
+        toast('ITEM HIDDEN', 'Removed from view — find it under "hidden" at the bottom of this tier if you want it back.');
+      }
+      reflowOpenTier(tid);
+    });
+  });
+  // wire restore buttons
+  Array.prototype.forEach.call(document.querySelectorAll('[data-restore]'), function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      var id = el.getAttribute('data-restore');
+      delete state.hidden[id];
+      saveState();
+      renderTiers(); updateStats();
+    });
+  });
+  // wire hidden-list toggles
+  Array.prototype.forEach.call(document.querySelectorAll('[data-hidden-tier]'), function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      var tid = el.getAttribute('data-hidden-tier');
+      state.hiddenListOpen[tid] = !state.hiddenListOpen[tid];
+      saveState();
+      renderTiers();
+      reflowOpenTier(tid);
+    });
+  });
+  // wire add-item forms
+  Array.prototype.forEach.call(document.querySelectorAll('[data-add-tier]'), function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      var tid = el.getAttribute('data-add-tier');
+      var form = document.getElementById('add-form-'+tid);
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      reflowOpenTier(tid);
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-cancel-add]'), function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      var tid = el.getAttribute('data-cancel-add');
+      document.getElementById('add-form-'+tid).style.display = 'none';
+      reflowOpenTier(tid);
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-submit-add]'), function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      var tid = el.getAttribute('data-submit-add');
+      addCustomItem(tid);
+    });
+  });
+  // wire AI-suggest buttons
+  Array.prototype.forEach.call(document.querySelectorAll('[data-suggest-tier]'), function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      var tid = el.getAttribute('data-suggest-tier');
+      runSuggest(tid);
+    });
+  });
+}
+
+function reflowOpenTier(tid){
+  var sec = document.getElementById('tier-'+tid);
+  if(sec && sec.classList.contains('open')){
+    var body = sec.querySelector('.tier-body');
+    body.style.maxHeight = body.scrollHeight+'px';
+  }
+}
+
+/* =========================================================
+   CUSTOM ITEMS + AI SUGGESTIONS
+========================================================= */
+function addCustomItem(tid){
+  var titleEl = document.getElementById('add-title-'+tid);
+  var blurbEl = document.getElementById('add-blurb-'+tid);
+  var detailEl = document.getElementById('add-detail-'+tid);
+  var title = titleEl.value.trim();
+  if(!title){ titleEl.focus(); return; }
+  var id = 'custom_'+tid+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  var item = { id:id, tierId:tid, t:title, b:blurbEl.value.trim(), d:detailEl.value.trim(), custom:true };
+  if(!state.customItems[tid]) state.customItems[tid] = [];
+  state.customItems[tid].push(item);
+  saveState();
+  renderTiers();
+  updateStats();
+  reflowOpenTier(tid);
+  Sound.notify();
+  toast('ITEM ADDED', '"'+title+'" added to your checklist.');
+}
+
+var SUGGEST_QUOTA = 8;
+function runSuggest(tid){
+  var tier = TIERS.filter(function(t){ return t.id === tid; })[0];
+  var panel = document.getElementById('suggest-panel-'+tid);
+  if(!panel || !tier) return;
+  if(!sampler){
+    panel.style.display = 'block';
+    panel.innerHTML = '<div class="suggest-note">AI suggestions need the AI-connected live version of this page — this copy can\'t reach it. Add items manually with "+ Add item" instead.</div>';
+    reflowOpenTier(tid);
+    return;
+  }
+  panel.style.display = 'block';
+  panel.innerHTML = '<div class="suggest-note">Thinking of items for '+tier.name+'&hellip;</div>';
+  reflowOpenTier(tid);
+  var existing = tierAllItems(tier).map(function(it){ return it.t; }).join('; ');
+  var prompt = 'You generate additional entries for the "'+tier.name+'" tier ("'+tier.tag+'") of a personal cybersecurity checklist called Ghost Protocol. This tier already has: '+existing+'. Suggest '+SUGGEST_QUOTA+' NEW, concrete, non-duplicate checklist items that fit this tier. Where it makes sense, be granular and per-account rather than one vague catch-all item — e.g. separate items for enabling MFA on a primary email provider, a banking login, a work SSO account, a social media account, a cloud storage account, a crypto exchange, and similar. Reply with ONLY a JSON array and nothing else, in exactly this shape: [{"t":"short title","b":"one sentence summary","d":"1-3 sentence explanation of why it matters"}]';
+  sampler(prompt, {modelTier:'quick', cache:false}).then(function(res){
+    var items = parseSuggestJSON(res.text);
+    if(!items || !items.length){
+      panel.innerHTML = '<div class="suggest-note">Couldn&#8217;t parse a suggestion list that time.</div><div class="tier-add-actions"><button class="btn btn-ghost" data-suggest-retry="'+tid+'">Try again</button></div>';
+      var retryBtn = panel.querySelector('[data-suggest-retry="'+tid+'"]');
+      if(retryBtn) retryBtn.addEventListener('click', function(e){ e.stopPropagation(); runSuggest(tid); });
+      reflowOpenTier(tid);
+      return;
+    }
+    renderSuggestions(tid, items);
+  }).catch(function(e){
+    panel.innerHTML = '<div class="suggest-note">AI suggestion hit a snag ('+((e&&e.code)||'unknown')+'). Try again, or add items manually.</div>';
+    reflowOpenTier(tid);
+  });
+}
+function parseSuggestJSON(text){
+  try{
+    var m = text.match(/\[[\s\S]*\]/);
+    if(!m) return null;
+    var arr = JSON.parse(m[0]);
+    if(!Array.isArray(arr)) return null;
+    return arr.filter(function(x){ return x && x.t; }).map(function(x){
+      return { t:String(x.t).slice(0,120), b:String(x.b||'').slice(0,200), d:String(x.d||'').slice(0,600) };
+    });
+  }catch(e){ return null; }
+}
+function renderSuggestions(tid, items){
+  var panel = document.getElementById('suggest-panel-'+tid);
+  var html = '<div class="suggest-note">Pick what to add:</div><div class="suggest-list">';
+  items.forEach(function(it, i){
+    html += '<label class="suggest-item"><input type="checkbox" checked data-sug="'+tid+'-'+i+'"><span><b>'+it.t+'</b><small>'+it.b+'</small></span></label>';
+  });
+  html += '</div><div class="tier-add-actions"><button class="btn btn-ghost" data-suggest-cancel="'+tid+'">Dismiss</button><button class="btn btn-add" data-suggest-addall="'+tid+'">Add selected</button></div>';
+  panel.innerHTML = html;
+  panel.querySelector('[data-suggest-cancel="'+tid+'"]').addEventListener('click', function(e){
+    e.stopPropagation();
+    panel.style.display = 'none'; panel.innerHTML = '';
+    reflowOpenTier(tid);
+  });
+  panel.querySelector('[data-suggest-addall="'+tid+'"]').addEventListener('click', function(e){
+    e.stopPropagation();
+    var added = 0;
+    items.forEach(function(it, i){
+      var cb = panel.querySelector('[data-sug="'+tid+'-'+i+'"]');
+      if(cb && cb.checked){
+        var id = 'custom_'+tid+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)+i;
+        if(!state.customItems[tid]) state.customItems[tid] = [];
+        state.customItems[tid].push({ id:id, tierId:tid, t:it.t, b:it.b, d:it.d, custom:true });
+        added++;
+      }
+    });
+    if(added){
+      saveState();
+      renderTiers(); updateStats();
+      var tierObj = TIERS.filter(function(t){ return t.id===tid; })[0];
+      toast('ITEMS ADDED', added+' item'+(added>1?'s':'')+' added to '+(tierObj?tierObj.name:'the tier')+'.');
+      reflowOpenTier(tid);
+    } else {
+      panel.style.display='none'; panel.innerHTML='';
+    }
+  });
+  reflowOpenTier(tid);
 }
 
 function updateStats(){
-  var done = ALL_ITEMS.filter(function(it){ return !!state.checked[it.id]; }).length;
-  var pct = Math.round(done/TOTAL*100);
+  var allItems = effectiveAllItems();
+  var total = allItems.length;
+  var done = allItems.filter(function(it){ return !!state.checked[it.id]; }).length;
+  var pct = total ? Math.round(done/total*100) : 0;
   document.getElementById('hud-fill').style.width = pct+'%';
   document.getElementById('hud-pct').textContent = pct+'% secured';
-  document.getElementById('hud-frac').textContent = done+'/'+TOTAL;
+  document.getElementById('hud-frac').textContent = done+'/'+total;
   document.getElementById('pill-done').textContent = done;
-  document.getElementById('pill-total').textContent = TOTAL;
+  document.getElementById('pill-total').textContent = total;
 
   // tier counters
   TIERS.forEach(function(tier){
-    var doneCount = tier.items.filter(function(it){ return !!state.checked[it.id]; }).length;
+    var items = tierAllItems(tier);
+    var doneCount = items.filter(function(it){ return !!state.checked[it.id]; }).length;
     var sec = document.getElementById('tier-'+tier.id);
     if(sec){
-      sec.querySelector('.tier-count').textContent = doneCount+'/'+tier.items.length;
-      sec.querySelector('.tier-progress i').style.width = Math.round(doneCount/tier.items.length*100)+'%';
+      sec.querySelector('.tier-count').textContent = doneCount+'/'+items.length;
+      sec.querySelector('.tier-progress i').style.width = Math.round(doneCount/Math.max(1,items.length)*100)+'%';
     }
   });
 
@@ -694,7 +963,7 @@ function updateStats(){
     pe.innerHTML = '<b>&#9670;</b>&nbsp;'+state.eggs.length+' easter egg'+(state.eggs.length>1?'s':'')+' found';
   }
 
-  return {done:done, pct:pct};
+  return {done:done, pct:pct, total:total};
 }
 
 /* =========================================================
@@ -829,13 +1098,14 @@ function toggleItem(it, checked){
   if(stats.done === 1) unlock('first_step', 'INITIALIZED', 'First item checked off. The hardest part is starting.');
 
   TIERS.forEach(function(tier){
-    var doneCount = tier.items.filter(function(x){ return !!state.checked[x.id]; }).length;
-    if(doneCount === tier.items.length){
+    var items = tierAllItems(tier);
+    var doneCount = items.filter(function(x){ return !!state.checked[x.id]; }).length;
+    if(items.length && doneCount === items.length){
       unlock('tier_'+tier.id, tier.name+' CLEARED', 'Every item in '+tier.name+' is checked off.');
     }
   });
 
-  if(stats.done === TOTAL && !state.celebrated){
+  if(stats.total && stats.done === stats.total && !state.celebrated){
     state.celebrated = true;
     saveState();
     celebrate();
@@ -987,15 +1257,20 @@ function checklistContext(){
   var lines = [];
   TIERS.forEach(function(tier){
     lines.push(tier.code + ' ' + tier.name + ' -- ' + tier.tag);
-    tier.items.forEach(function(it){ lines.push('- ' + it.t + ': ' + it.b); });
+    tierAllItems(tier).forEach(function(it){
+      var done = state.checked[it.id] ? ' [done]' : '';
+      lines.push('- ' + it.t + ': ' + it.b + done + (it.custom ? ' (user-added)' : ''));
+    });
   });
   return lines.join('\n');
 }
-var AI_INSTRUCTIONS = 'You are the terminal assistant embedded in "Ghost Protocol," a personal cybersecurity checklist website. Below is the full checklist (tier code, name, tagline, then each item with its short blurb). Answer the visitor\'s questions about digital security and about this checklist specifically — which tier something belongs in, why an item matters, what to tackle first, etc. Keep replies short (2-5 sentences), plain text only, no markdown headers or bullet characters, dry hacker-terminal tone but always accurate and genuinely useful. If asked something unrelated to security or this checklist, answer briefly and nudge back toward the checklist. Never claim the checklist contains an item it does not.\n\nTHE CHECKLIST:\n' + checklistContext();
+function aiInstructions(){
+  return 'You are the terminal assistant embedded in "Ghost Protocol," a personal cybersecurity checklist website. Below is the visitor\'s current checklist (tier code, name, tagline, then each item with its short blurb, whether they\'ve checked it off, and whether they added it themselves). Answer the visitor\'s questions about digital security and about this checklist specifically — which tier something belongs in, why an item matters, what to tackle first, etc. Keep replies short (2-5 sentences), plain text only, no markdown headers or bullet characters, dry hacker-terminal tone but always accurate and genuinely useful. If asked something unrelated to security or this checklist, answer briefly and nudge back toward the checklist. Never claim the checklist contains an item it does not.\n\nTHE CHECKLIST:\n' + checklistContext();
+}
 var aiTurns = [];
 
 function askAI(question, targetEl){
-  var turns = [{role:'user', content: AI_INSTRUCTIONS}].concat(aiTurns, [{role:'user', content: question}]);
+  var turns = [{role:'user', content: aiInstructions()}].concat(aiTurns, [{role:'user', content: question}]);
   targetEl.textContent = 'Thinking...';
   sampler(turns, {
     modelTier: 'quick',
@@ -1048,7 +1323,7 @@ var COMMANDS = {
   },
   whoami: function(){ return 'guest-operator &middot; clearance level: '+document.getElementById('stat-rank').textContent; },
   rank: function(){ var d=updateStats(); return document.getElementById('rank-name').textContent+' &mdash; '+d.pct+'% secured'; },
-  progress: function(){ var d=updateStats(); return d.done+'/'+TOTAL+' items cleared ('+d.pct+'%)'; },
+  progress: function(){ var d=updateStats(); return d.done+'/'+d.total+' items cleared ('+d.pct+'%)'; },
   achievements: function(){ return state.achievements.length ? state.achievements.join(', ') : 'none yet — check off an item to start.'; },
   sudo: function(){ return 'Nice try. This terminal is decorative, not a real shell. Permission denied.'; },
   credits: function(){ showCredits(); return 'Opening credits panel&hellip;'; },
@@ -1155,9 +1430,11 @@ document.getElementById('reset-cancel').addEventListener('click', function(){ re
 document.getElementById('reset-confirm').addEventListener('click', function(){
   var eggs = state.eggs, ach = state.achievements, lv = state.localVisits, muted = state.muted;
   var rabbitCatches = state.rabbitCatches, themeHue = state.themeHue, neoCalls = state.neoCalls;
+  var hidden = state.hidden, customItems = state.customItems;
   state = defaultState();
   state.eggs = eggs; state.achievements = ach; state.localVisits = lv; state.muted = muted; // keep meta + prefs
   state.rabbitCatches = rabbitCatches; state.themeHue = themeHue; state.neoCalls = neoCalls;
+  state.hidden = hidden; state.customItems = customItems; // keep list customization — this wipe is just checked/expanded
   saveState();
   resetModal.classList.remove('open');
   renderTiers();

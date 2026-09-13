@@ -19,9 +19,11 @@ Each item expands (click the **+**) to explain *why* it matters, not just what t
 
 Every tier can be reshaped to fit your actual life:
 
-- **×** on any item hides it from view. It's not deleted — it "remains" in your saved data, and you can bring it back anytime from the "N hidden — show" link at the bottom of that tier.
+- **×** on any item (built-in or one you added yourself) hides it from view. Nothing is ever deleted — it "remains" in your saved data, and you can bring it back from the "N hidden — show" link right at the top of that tier's dropdown.
 - **+ Add item** lets you add your own item to a tier — title, optional one-line note, optional detail — for anything specific to you (a particular account, device, or habit) that isn't already covered.
 - **✦ AI suggest** asks the AI chat to propose several new, non-duplicate items for that tier — often broken out per-account (e.g. one item each for your email, bank, work SSO, socials) rather than one vague catch-all — and lets you pick which ones to actually add. Like the terminal chat, this needs the live AI-connected version of the page.
+
+All three controls live right under each tier's header, as soon as you open it.
 
 Hiding or adding items changes what counts toward your percentage and rank — hide something that doesn't apply to you and it stops being held against your score; add something and it becomes part of your checklist, same as anything built in.
 

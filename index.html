@@ -625,7 +625,13 @@ var TOTAL = ALL_ITEMS.length;
 
 function tierAllItems(tier){
   var visible = tier.items.filter(function(it){ return !state.hidden[it.id]; });
-  return visible.concat(state.customItems[tier.id] || []);
+  var customVisible = (state.customItems[tier.id] || []).filter(function(it){ return !state.hidden[it.id]; });
+  return visible.concat(customVisible);
+}
+function tierHiddenItems(tier){
+  var hiddenBuiltIn = tier.items.filter(function(it){ return !!state.hidden[it.id]; });
+  var hiddenCustom = (state.customItems[tier.id] || []).filter(function(it){ return !!state.hidden[it.id]; });
+  return hiddenBuiltIn.concat(hiddenCustom);
 }
 function effectiveAllItems(){
   var arr = [];
@@ -654,8 +660,8 @@ function renderTiers(){
   var html = '';
   TIERS.forEach(function(tier){
     var items = tierAllItems(tier);
+    var hiddenItems = tierHiddenItems(tier);
     var doneCount = items.filter(function(it){ return !!state.checked[it.id]; }).length;
-    var hiddenCount = tier.items.filter(function(it){ return !!state.hidden[it.id]; }).length;
     var openClass = state.expanded['tier_'+tier.id] ? ' open' : '';
     html += '<section class="tier'+openClass+'" id="tier-'+tier.id+'" style="--tier-accent:'+tier.accent+'">';
     html += '  <button class="tier-head" data-tier="'+tier.id+'" aria-expanded="'+(!!state.expanded['tier_'+tier.id])+'">';
@@ -666,6 +672,27 @@ function renderTiers(){
     html += '  </button>';
     html += '  <div class="tier-progress"><i style="width:'+Math.round(doneCount/Math.max(1,items.length)*100)+'%"></i></div>';
     html += '  <div class="tier-body"><div class="tier-body-inner">';
+    html += '    <div class="tier-toolbar">';
+    html += '      <button class="tier-tool-btn" data-add-tier="'+tier.id+'">+ Add item</button>';
+    html += '      <button class="tier-tool-btn suggest" data-suggest-tier="'+tier.id+'">&#10022; AI suggest</button>';
+    if(hiddenItems.length > 0){
+      html += '      <button class="tier-tool-btn ghost" data-hidden-tier="'+tier.id+'">'+hiddenItems.length+' hidden &mdash; '+(state.hiddenListOpen[tier.id]?'hide':'show')+'</button>';
+    }
+    html += '    </div>';
+    html += '    <div class="tier-add-form" id="add-form-'+tier.id+'" style="display:none;">';
+    html += '      <input type="text" class="add-input" id="add-title-'+tier.id+'" placeholder="Item title (e.g. Enable MFA on my crypto exchange)" maxlength="120">';
+    html += '      <input type="text" class="add-input" id="add-blurb-'+tier.id+'" placeholder="Short one-line note (optional)" maxlength="160">';
+    html += '      <textarea class="add-input" id="add-detail-'+tier.id+'" placeholder="Why it matters / how to do it (optional)" rows="2" maxlength="600"></textarea>';
+    html += '      <div class="tier-add-actions"><button class="btn btn-ghost" data-cancel-add="'+tier.id+'">Cancel</button><button class="btn btn-add" data-submit-add="'+tier.id+'">Add to checklist</button></div>';
+    html += '    </div>';
+    if(hiddenItems.length > 0 && state.hiddenListOpen[tier.id]){
+      html += '    <div class="hidden-list">';
+      hiddenItems.forEach(function(it){
+        html += '<div class="hidden-row"><span>'+it.t+'</span><button class="restore-btn" data-restore="'+it.id+'">+ restore</button></div>';
+      });
+      html += '    </div>';
+    }
+    html += '    <div class="suggest-panel" id="suggest-panel-'+tier.id+'" style="display:none;"></div>';
     items.forEach(function(it){
       var checked = !!state.checked[it.id];
       var expanded = !!state.expanded[it.id];
@@ -676,34 +703,13 @@ function renderTiers(){
       html += '      <div class="item-head" data-toggle="'+it.id+'">';
       html += '        <div style="flex:1;"><div class="item-title">'+it.t+(it.custom?' <span class="custom-tag">custom</span>':'')+'</div>'+(it.b?'<div class="item-blurb">'+it.b+'</div>':'')+'</div>';
       if(it.d) html += '        <button class="item-info" data-toggle="'+it.id+'" aria-label="More detail">+</button>';
-      html += '        <button class="item-remove" data-remove="'+it.id+'" data-tier="'+tier.id+'" data-custom="'+(it.custom?'1':'0')+'" aria-label="'+(it.custom?'Delete this item':'Hide this item')+'" title="'+(it.custom?'Delete this item':'Hide this item (you can restore it later)')+'">&#10005;</button>';
+      html += '        <button class="item-remove" data-remove="'+it.id+'" data-tier="'+tier.id+'" aria-label="Hide this item" title="Hide this item — it stays in your data and you can restore it from &quot;hidden&quot; above">&#10005;</button>';
       html += '      </div>';
       if(it.d) html += '      <div class="item-detail"><div class="item-detail-inner">'+it.d+'</div></div>';
       html += '    </div>';
       html += '  </div>';
       html += '</div>';
     });
-    html += '    <div class="tier-toolbar">';
-    html += '      <button class="tier-tool-btn" data-add-tier="'+tier.id+'">+ Add item</button>';
-    html += '      <button class="tier-tool-btn suggest" data-suggest-tier="'+tier.id+'">&#10022; AI suggest</button>';
-    if(hiddenCount > 0){
-      html += '      <button class="tier-tool-btn ghost" data-hidden-tier="'+tier.id+'">'+hiddenCount+' hidden &mdash; '+(state.hiddenListOpen[tier.id]?'hide':'show')+'</button>';
-    }
-    html += '    </div>';
-    html += '    <div class="tier-add-form" id="add-form-'+tier.id+'" style="display:none;">';
-    html += '      <input type="text" class="add-input" id="add-title-'+tier.id+'" placeholder="Item title (e.g. Enable MFA on my crypto exchange)" maxlength="120">';
-    html += '      <input type="text" class="add-input" id="add-blurb-'+tier.id+'" placeholder="Short one-line note (optional)" maxlength="160">';
-    html += '      <textarea class="add-input" id="add-detail-'+tier.id+'" placeholder="Why it matters / how to do it (optional)" rows="2" maxlength="600"></textarea>';
-    html += '      <div class="tier-add-actions"><button class="btn btn-ghost" data-cancel-add="'+tier.id+'">Cancel</button><button class="btn btn-add" data-submit-add="'+tier.id+'">Add to checklist</button></div>';
-    html += '    </div>';
-    if(hiddenCount > 0 && state.hiddenListOpen[tier.id]){
-      html += '    <div class="hidden-list">';
-      tier.items.filter(function(it){ return !!state.hidden[it.id]; }).forEach(function(it){
-        html += '<div class="hidden-row"><span>'+it.t+'</span><button class="restore-btn" data-restore="'+it.id+'">+ restore</button></div>';
-      });
-      html += '    </div>';
-    }
-    html += '    <div class="suggest-panel" id="suggest-panel-'+tier.id+'" style="display:none;"></div>';
     html += '  </div></div>';
     html += '</section>';
   });
@@ -741,23 +747,16 @@ function renderTiers(){
     });
   });
 
-  // wire remove/hide buttons
+  // wire remove/hide buttons — always hides (reversible), never deletes
   Array.prototype.forEach.call(document.querySelectorAll('[data-remove]'), function(el){
     el.addEventListener('click', function(e){
       e.stopPropagation();
       var id = el.getAttribute('data-remove');
       var tid = el.getAttribute('data-tier');
-      var custom = el.getAttribute('data-custom') === '1';
-      if(custom){
-        state.customItems[tid] = (state.customItems[tid]||[]).filter(function(it){ return it.id !== id; });
-        saveState();
-        renderTiers(); updateStats();
-      } else {
-        state.hidden[id] = true;
-        saveState();
-        renderTiers(); updateStats();
-        toast('ITEM HIDDEN', 'Removed from view — find it under "hidden" at the bottom of this tier if you want it back.');
-      }
+      state.hidden[id] = true;
+      saveState();
+      renderTiers(); updateStats();
+      toast('ITEM HIDDEN', 'Removed from view — find it under "N hidden" at the top of this tier if you want it back.');
       reflowOpenTier(tid);
     });
   });
@@ -1439,17 +1438,19 @@ document.getElementById('reset-btn').addEventListener('click', function(){ reset
 document.getElementById('reset-cancel').addEventListener('click', function(){ resetModal.classList.remove('open'); });
 document.getElementById('reset-confirm').addEventListener('click', function(){
   var eggs = state.eggs, ach = state.achievements, lv = state.localVisits, muted = state.muted;
-  var rabbitCatches = state.rabbitCatches, themeHue = state.themeHue, neoCalls = state.neoCalls;
+  var neoCalls = state.neoCalls;
   var hidden = state.hidden, customItems = state.customItems;
   state = defaultState();
   state.eggs = eggs; state.achievements = ach; state.localVisits = lv; state.muted = muted; // keep meta + prefs
-  state.rabbitCatches = rabbitCatches; state.themeHue = themeHue; state.neoCalls = neoCalls;
+  state.neoCalls = neoCalls;
   state.hidden = hidden; state.customItems = customItems; // keep list customization — this wipe is just checked/expanded
+  // themeHue/rabbitCatches reset to defaults (null/0) — a wipe restarts the theme back to green too
   saveState();
+  applyTheme(null);
   resetModal.classList.remove('open');
   renderTiers();
   updateStats();
-  toast('WIPED', 'Local progress cleared. Fresh start.');
+  toast('WIPED', 'Local progress cleared. Theme reset to green. Fresh start.');
 });
 
 /* =========================================================

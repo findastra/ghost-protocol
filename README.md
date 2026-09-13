@@ -37,6 +37,12 @@ The bottom-right terminal (`>_`) doubles as a chat assistant — ask it anything
 
 Small synthesized sound effects (checkbox ticks, achievement chimes, terminal blips) via the Web Audio API — no audio files. Muted by default is off; toggle with the speaker icon in the top HUD. The setting is remembered per browser. Checking an item off also pairs its tick sound with a small burst of 0/1 particles right at the checkbox.
 
+## Background music
+
+A small "MUSIC" pill next to the sound toggle plays a queue of eight short instrumental tracks, one after another, then stops — no loop. Every track is an **original, synthesized placeholder** (built the same way as the sound effects above, with plain oscillators — no audio files), each one just standing in for the mood of a song mentioned in conversation rather than being that actual recording; this page can't legally embed real copyrighted audio, and a published Claude Artifact's content policy blocks loading external audio files anyway. Click the speaker icon to mute/unmute, and use **−** / **+** to adjust volume in 10% steps (0–100%). Browsers block autoplay-with-sound until you interact with the page, so the playlist starts on your first click, key press, or tap anywhere on the page (or immediately when you unmute, if it hasn't started yet). Your mute state and volume are remembered per browser.
+
+This feature is intentionally self-contained and easy to remove: it's all inside three blocks marked `BACKGROUND MUSIC CONTROLS` (CSS and HTML) and `BACKGROUND MUSIC — PLACEHOLDER TRACKS` (JS), uses its own `localStorage` key, and touches nothing else in the site. To turn it off without deleting anything, set `MUSIC_ENABLED = false` near the top of that JS block. To remove it entirely, delete those three marked blocks.
+
 ## What This Page Can See About You
 
 Near the bottom of the page, above the footer, a live readout panel shows roughly 30 real, verifiable things an ordinary website can detect about a visitor — no login, no special permissions, nothing exotic. It's grouped into three sections:

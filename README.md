@@ -15,11 +15,13 @@ A single-file, self-contained, interactive personal cybersecurity checklist. Mat
 
 Each item has a small chevron dot — click it to reveal *why it matters* and how to do it, written in plain language with real detail rather than a one-line summary (nothing shows until you click it). Specific tools/services mentioned there (password managers, encryption tools, breach-check sites, etc.) are hyperlinked straight to their current official pages.
 
+Right under the exposure meter, a small note points out that the AI chat in the bottom-right corner (`>_`) can explain any item in plain language or help figure out what to add for your own setup — in case that isn't obvious from the terminal button alone.
+
 ## Customize each tier
 
 Every tier can be reshaped to fit your actual life. Click **"Customize this list"** right under a tier's header to reveal:
 
-- **+ Add item** — add your own item to that tier: title, optional one-line note, optional detail — for anything specific to you (a particular account, device, or habit) that isn't already covered.
+- **+ Add item** — add your own item to that tier: title, optional one-line note, optional detail, and an optional link — for anything specific to you (a particular account, device, or habit) that isn't already covered. A bare domain or URL without `http(s)://` is normalized automatically, and the item's expanded detail gets an "Open link ↗" button that opens it in a new tab.
 - **✦ AI suggest** — asks the AI chat to propose several new, non-duplicate items for that tier — often broken out per-account (e.g. one item each for your email, bank, work SSO, socials) — and lets you pick which ones to actually add. Needs the live AI-connected version of the page.
 - **N hidden** — restores anything you've hidden.
 
@@ -33,7 +35,7 @@ The bottom-right terminal (`>_`) doubles as a chat assistant — ask it anything
 
 ## Sound
 
-Small synthesized sound effects (checkbox ticks, achievement chimes, terminal blips) via the Web Audio API — no audio files. Muted by default is off; toggle with the speaker icon in the top HUD. The setting is remembered per browser.
+Small synthesized sound effects (checkbox ticks, achievement chimes, terminal blips) via the Web Audio API — no audio files. Muted by default is off; toggle with the speaker icon in the top HUD. The setting is remembered per browser. Checking an item off also pairs its tick sound with a small burst of 0/1 particles right at the checkbox.
 
 ## How state works
 
@@ -51,9 +53,9 @@ Told, not hidden — per request:
 5. **"Touch grass"** — the last item in tier 03 is only half a joke; checking it triggers its own reaction.
 6. **`matrix` terminal command** — flashes a full-screen matrix takeover.
 7. **`neo` terminal command** — flips an "invert" mode. The first time you ever type it, it says "Follow the white rabbit." Every time after that, it replies with a different random line from *The Matrix* or *Alice in Wonderland*.
-8. **The white rabbit** — every so often, a small pixel rabbit hops (not just slides) across the bottom of the screen, cycling through four poses each hop (crouch, push-off, full-stretch peak, touchdown) with a real arcing bounce. Click it before it escapes: the first catch turns the whole site red, the second turns it pink, and every catch after that shifts it to a new random neon color. The color sticks around (saved per browser) until you catch it again.
+8. **The white rabbit** — every so often, a small always-white pixel rabbit hops (not just slides) along an edge of the screen — bottom, top, or either side, in either direction — cycling through four poses each hop (crouch, push-off, full-stretch peak, touchdown) with a real arcing bounce. Sometimes, instead of crossing an edge, it sneaks up to a hole in one of the title letters (the O's, A's, B's, D's, P's, Q's, and R's) and hides inside it for a moment before dashing off screen. Click it before it escapes: the first catch turns the whole site red, the second turns it pink, and every catch after that shifts it to a new random neon color — and it explodes into a shower of 0s and 1s that also ripples outward through the matrix rain behind it. The color sticks around (saved per browser) until you catch it again.
 9. **The browser console** — open devtools on the page for an ASCII-styled greeting most visitors will never see.
-10. **100% completion** — clearing all 41 items triggers a full-screen "DIGITAL GHOST / FULL CLEARANCE" celebration with a particle burst.
+10. **100% completion** — clearing all 41 items triggers a full-screen "DIGITAL GHOST / FULL CLEARANCE" celebration: a burst of 0/1 particles, the theme cycling through every color, the matrix rain turning rainbow, and sparkles scattered across the whole screen — the final easter egg.
 11. **Achievements** — tracked quietly per browser: first check, each tier cleared, 3 easter eggs found ("EASTER HUNTER"), and full clearance.
 
 ## Tech

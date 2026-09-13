@@ -148,6 +148,12 @@
   .threat-top b{font-family:var(--display); font-size:13px; letter-spacing:.03em;}
   .threat-track{height:10px; border-radius:99px; background:var(--surface-2); border:1px solid var(--border); overflow:hidden; position:relative;}
   .threat-fill{height:100%; width:100%; transition:width .6s ease, background .6s ease;}
+  .ai-hint{
+    margin-top:14px; font-size:12px; line-height:1.5; color:var(--text-dim);
+    border:1px dashed var(--border); border-radius:var(--radius); padding:10px 14px;
+    background:rgba(var(--green-rgb),.03);
+  }
+  .ai-hint b{color:var(--green-bright); font-weight:700;}
 
   /* ---------- tiers ---------- */
   .tier{
@@ -243,6 +249,9 @@
   }
   .tier-customize-panel.open{grid-template-rows:1fr; opacity:1;}
   .tier-customize-panel > div{overflow:hidden; min-height:0;}
+  .item-link{margin-top:8px;}
+  .item-link a{color:var(--cyan); text-decoration:none; font-weight:600;}
+  .item-link a:hover{text-decoration:underline;}
   .item-add-related{
     display:inline-block; margin-top:8px; background:none; border:1px dashed var(--border-soft); color:var(--text-dim);
     border-radius:6px; padding:5px 10px; font-size:10.5px; cursor:pointer; font-family:var(--mono);
@@ -308,11 +317,13 @@
   #white-rabbit{
     position:fixed; bottom:8px; left:-70px; z-index:41; cursor:pointer;
     display:none; user-select:none; -webkit-user-select:none; line-height:1;
-    color:var(--green-bright); filter:drop-shadow(0 0 5px currentColor);
-    background:none; border:none; padding:4px; transform-origin:bottom center;
-    will-change:transform, left;
+    color:#fff; filter:drop-shadow(0 0 5px rgba(255,255,255,.8));
+    background:none; border:none; padding:4px;
+    will-change:transform, left, top;
   }
-  #white-rabbit .rabbit-frame{display:none; width:36px; height:26px;}
+  #white-rabbit.hiding{transition:transform .25s ease, opacity .25s ease;}
+  .rabbit-rotor{transition:transform .2s ease;}
+  #white-rabbit .rabbit-frame{display:none; width:32px; height:32px;}
   #white-rabbit .rabbit-crouch{display:block;}
   #white-rabbit[data-pose="rise"] .rabbit-crouch{display:none;}
   #white-rabbit[data-pose="rise"] .rabbit-rise{display:block;}
@@ -321,7 +332,8 @@
   #white-rabbit[data-pose="land"] .rabbit-crouch{display:none;}
   #white-rabbit[data-pose="land"] .rabbit-land{display:block;}
   #white-rabbit.running{display:block;}
-  #white-rabbit:hover{filter:drop-shadow(0 0 9px currentColor);}
+  #white-rabbit:hover{filter:drop-shadow(0 0 9px rgba(255,255,255,.95));}
+  .title-hole-letter{position:relative;}
   .term-panel{
     position:fixed; right:18px; bottom:82px; z-index:40;
     width:min(360px, calc(100vw - 36px)); height:min(320px, 50vh);
@@ -383,6 +395,10 @@
   #celebrate p{color:var(--green-bright); font-size:13px; letter-spacing:.05em;}
 
   .particle{position:fixed; z-index:55; border-radius:50%; pointer-events:none;}
+  .particle-glyph{
+    border-radius:0; background:none; font-family:var(--mono); font-weight:700; font-size:15px;
+    line-height:1; text-shadow:0 0 6px currentColor;
+  }
 
   @media (max-width:520px){
     .hud-stats{gap:10px;}
@@ -428,7 +444,7 @@
   <div class="hero">
     <div class="hero-eyebrow"><span class="dot"></span> SECURE_CHECKLIST // ASTRA-INSTANCE</div>
     <h1 class="title" id="glitch-title"><span class="glitch">YOUR PERSONAL CYBER SECURITY CHECKLIST</span></h1>
-    <p class="sub">Easiest fixes first, deep-cut stuff last. Check things off as you go &mdash; it saves right here in your browser, just for you.</p>
+    <p class="sub">Easiest fixes first, deep-cut stuff last. Check things off as you go &mdash; it saves right here in your browser, just for you. Keep an eye out &mdash; a few easter eggs only unlock as you make progress.</p>
     <div class="hero-meta">
       <div class="rank-badge"><span class="rank-icon" id="rank-icon">N</span><b id="rank-name">NOVICE OPERATOR</b></div>
       <div class="pill"><b id="pill-done">0</b>&nbsp;/&nbsp;<span id="pill-total">0</span> items cleared</div>
@@ -439,6 +455,8 @@
       <div class="threat-top"><span>Exposure level</span><b id="threat-label">CRITICAL EXPOSURE</b></div>
       <div class="threat-track"><div class="threat-fill" id="threat-fill"></div></div>
     </div>
+
+    <div class="ai-hint">Not sure what something means, or whether it applies to you? The chat in the bottom-right corner (<b>&gt;_</b>) can explain any item in plain language, or help you figure out what to add for your own setup.</div>
   </div>
 
   <div id="tiers"></div>
@@ -453,44 +471,47 @@
 </div>
 
 <button id="white-rabbit" aria-label="A white rabbit. Catch it." title="?">
-  <svg class="rabbit-frame rabbit-crouch" viewBox="0 0 14 10" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
-    <rect x="9" y="0" width="1" height="1"/><rect x="11" y="0" width="1" height="1"/>
-    <rect x="9" y="1" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/>
-    <rect x="8" y="2" width="5" height="1"/>
-    <rect x="6" y="3" width="8" height="1"/>
-    <rect x="2" y="4" width="11" height="1"/>
-    <rect x="0" y="5" width="1" height="1"/><rect x="1" y="5" width="11" height="1"/>
-    <rect x="2" y="6" width="3" height="1"/><rect x="8" y="6" width="3" height="1"/>
-    <rect x="2" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/>
-  </svg>
-  <svg class="rabbit-frame rabbit-rise" viewBox="0 0 14 10" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
-    <rect x="9" y="0" width="1" height="1"/><rect x="11" y="0" width="1" height="1"/>
-    <rect x="9" y="1" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/>
-    <rect x="9" y="2" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/>
-    <rect x="8" y="3" width="5" height="1"/>
-    <rect x="4" y="4" width="10" height="1"/>
-    <rect x="1" y="5" width="11" height="1"/>
-    <rect x="0" y="6" width="2" height="1"/><rect x="9" y="6" width="2" height="1"/>
-  </svg>
-  <svg class="rabbit-frame rabbit-peak" viewBox="0 0 14 10" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
-    <rect x="8" y="0" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/>
-    <rect x="8" y="1" width="1" height="1"/><rect x="10" y="1" width="1" height="1"/>
-    <rect x="7" y="2" width="5" height="1"/>
-    <rect x="3" y="3" width="10" height="1"/>
-    <rect x="1" y="4" width="12" height="1"/>
-    <rect x="2" y="5" width="9" height="1"/>
-    <rect x="2" y="6" width="2" height="1"/><rect x="9" y="6" width="2" height="1"/>
-  </svg>
-  <svg class="rabbit-frame rabbit-land" viewBox="0 0 14 10" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
-    <rect x="9" y="1" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/>
-    <rect x="9" y="2" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/>
-    <rect x="8" y="3" width="5" height="1"/>
-    <rect x="4" y="4" width="10" height="1"/>
-    <rect x="2" y="5" width="10" height="1"/>
-    <rect x="1" y="6" width="3" height="1"/><rect x="9" y="6" width="3" height="1"/>
-    <rect x="1" y="7" width="1" height="1"/><rect x="11" y="7" width="1" height="1"/>
-    <rect x="0" y="8" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/>
-  </svg>
+  <div class="rabbit-rotor">
+    <svg class="rabbit-frame rabbit-crouch" viewBox="0 0 9 9" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
+      <rect x="3" y="0" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/>
+      <rect x="3" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/>
+      <rect x="2" y="2" width="5" height="1"/>
+      <rect x="1" y="3" width="7" height="1"/>
+      <rect x="0" y="4" width="9" height="1"/>
+      <rect x="0" y="5" width="9" height="1"/>
+      <rect x="1" y="6" width="7" height="1"/>
+      <rect x="2" y="7" width="2" height="1"/><rect x="5" y="7" width="2" height="1"/>
+      <rect x="2" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/>
+    </svg>
+    <svg class="rabbit-frame rabbit-rise" viewBox="0 0 9 9" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
+      <rect x="2" y="0" width="1" height="1"/><rect x="4" y="0" width="1" height="1"/>
+      <rect x="2" y="1" width="1" height="1"/><rect x="4" y="1" width="1" height="1"/>
+      <rect x="2" y="2" width="5" height="1"/>
+      <rect x="1" y="3" width="7" height="1"/>
+      <rect x="0" y="4" width="9" height="1"/>
+      <rect x="0" y="5" width="9" height="1"/>
+      <rect x="1" y="6" width="2" height="1"/><rect x="6" y="6" width="2" height="1"/>
+    </svg>
+    <svg class="rabbit-frame rabbit-peak" viewBox="0 0 9 9" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
+      <rect x="2" y="0" width="1" height="1"/><rect x="4" y="0" width="1" height="1"/>
+      <rect x="2" y="1" width="1" height="1"/><rect x="4" y="1" width="1" height="1"/>
+      <rect x="2" y="2" width="5" height="1"/>
+      <rect x="1" y="3" width="7" height="1"/>
+      <rect x="0" y="4" width="9" height="1"/>
+      <rect x="0" y="5" width="9" height="1"/>
+      <rect x="2" y="6" width="2" height="1"/><rect x="5" y="6" width="2" height="1"/>
+    </svg>
+    <svg class="rabbit-frame rabbit-land" viewBox="0 0 9 9" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
+      <rect x="3" y="0" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/>
+      <rect x="3" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/>
+      <rect x="2" y="2" width="5" height="1"/>
+      <rect x="1" y="3" width="7" height="1"/>
+      <rect x="0" y="4" width="9" height="1"/>
+      <rect x="0" y="5" width="9" height="1"/>
+      <rect x="1" y="6" width="2" height="1"/><rect x="6" y="6" width="2" height="1"/>
+      <rect x="1" y="7" width="1" height="1"/><rect x="7" y="7" width="1" height="1"/>
+    </svg>
+  </div>
 </button>
 <button class="term-launcher" id="term-launcher" aria-label="Open terminal" title="Open terminal">&gt;_</button>
 <div class="term-panel" id="term-panel">
@@ -749,6 +770,7 @@ function renderTiers(){
     html += '        <input type="text" class="add-input" id="add-title-'+tier.id+'" placeholder="Item title (e.g. Enable MFA on my crypto exchange)" maxlength="120">';
     html += '        <input type="text" class="add-input" id="add-blurb-'+tier.id+'" placeholder="Short one-line note (optional)" maxlength="160">';
     html += '        <textarea class="add-input" id="add-detail-'+tier.id+'" placeholder="Why it matters / how to do it (optional)" rows="2" maxlength="600"></textarea>';
+    html += '        <input type="text" class="add-input" id="add-link-'+tier.id+'" placeholder="Link (optional) &mdash; e.g. the login page for this account" maxlength="500">';
     html += '        <div class="tier-add-actions"><button class="btn btn-ghost" data-cancel-add="'+tier.id+'">Cancel</button><button class="btn btn-add" data-submit-add="'+tier.id+'">Add to checklist</button></div>';
     html += '      </div>';
     if(hiddenItems.length > 0 && state.hiddenListOpen[tier.id]){
@@ -769,10 +791,14 @@ function renderTiers(){
       html += '    <div class="item-main">';
       html += '      <div class="item-head" data-toggle="'+it.id+'">';
       html += '        <div style="flex:1;"><div class="item-title">'+it.t+(it.custom?' <span class="custom-tag">custom</span>':'')+'</div>'+(it.b?'<div class="item-blurb">'+it.b+'</div>':'')+'</div>';
-      if(it.d) html += '        <button class="item-info" data-toggle="'+it.id+'" aria-label="Show more detail" title="Show more detail"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+      if(it.d || it.link) html += '        <button class="item-info" data-toggle="'+it.id+'" aria-label="Show more detail" title="Show more detail"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
       html += '        <button class="item-remove" data-remove="'+it.id+'" data-tier="'+tier.id+'" aria-label="Hide this item" title="Hide this item — it stays in your data and you can restore it from &quot;hidden&quot; above">&#10005;</button>';
       html += '      </div>';
-      if(it.d) html += '      <div class="item-detail"><div class="item-detail-clip"><div class="item-detail-inner">'+it.d+'<button class="item-add-related" data-add-related="'+tier.id+'" data-related-title="'+it.t.replace(/"/g,'&quot;')+'">+ add a related item</button></div></div></div>';
+      if(it.d || it.link){
+        html += '      <div class="item-detail"><div class="item-detail-clip"><div class="item-detail-inner">'+(it.d||'');
+        if(it.link) html += '<div class="item-link"><a href="'+it.link.replace(/"/g,'&quot;')+'" target="_blank" rel="noopener">Open link &#8599;</a></div>';
+        html += '<button class="item-add-related" data-add-related="'+tier.id+'" data-related-title="'+it.t.replace(/"/g,'&quot;')+'">+ add a related item</button></div></div></div>';
+      }
       html += '    </div>';
       html += '  </div>';
       html += '</div>';
@@ -923,14 +949,21 @@ function openAddFormFor(tid, relatedTitle){
   form.scrollIntoView({behavior:'smooth', block:'center'});
   setTimeout(function(){ if(titleInput) titleInput.focus(); }, 300);
 }
+function normalizeLink(raw){
+  var link = (raw||'').trim();
+  if(!link) return '';
+  if(!/^https?:\/\//i.test(link)) link = 'https://' + link;
+  return link;
+}
 function addCustomItem(tid){
   var titleEl = document.getElementById('add-title-'+tid);
   var blurbEl = document.getElementById('add-blurb-'+tid);
   var detailEl = document.getElementById('add-detail-'+tid);
+  var linkEl = document.getElementById('add-link-'+tid);
   var title = titleEl.value.trim();
   if(!title){ titleEl.focus(); return; }
   var id = 'custom_'+tid+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-  var item = { id:id, tierId:tid, t:title, b:blurbEl.value.trim(), d:detailEl.value.trim(), custom:true };
+  var item = { id:id, tierId:tid, t:title, b:blurbEl.value.trim(), d:detailEl.value.trim(), link: normalizeLink(linkEl && linkEl.value), custom:true };
   if(!state.customItems[tid]) state.customItems[tid] = [];
   state.customItems[tid].push(item);
   saveState();
@@ -1183,6 +1216,54 @@ function burst(x, y, color){
   }
 }
 
+function burstBinary(x, y, color, count){
+  count = count || 22;
+  for(var i=0;i<count;i++){
+    var p = document.createElement('div');
+    p.className = 'particle particle-glyph';
+    p.textContent = Math.random() > 0.5 ? '1' : '0';
+    p.style.left = x+'px'; p.style.top = y+'px';
+    p.style.color = color || 'var(--green-bright)';
+    document.body.appendChild(p);
+    var ang = Math.random()*Math.PI*2;
+    var dist = 50 + Math.random()*90;
+    var dx = Math.cos(ang)*dist, dy = Math.sin(ang)*dist;
+    var rot = (Math.random()*280 - 140).toFixed(0);
+    var dur = 650 + Math.random()*450;
+    p.animate([
+      {transform:'translate(0,0) rotate(0deg)', opacity:1},
+      {transform:'translate('+dx+'px,'+dy+'px) rotate('+rot+'deg)', opacity:0}
+    ], {duration:dur, easing:'cubic-bezier(.2,.7,.3,1)'});
+    setTimeout(function(el){ return function(){ el.remove(); }; }(p), dur+50);
+  }
+}
+
+function sparkleField(durationMs){
+  var end = Date.now() + durationMs;
+  (function spawn(){
+    var count = 3 + Math.floor(Math.random()*3);
+    for(var i=0;i<count;i++){
+      var p = document.createElement('div');
+      p.className = 'particle';
+      var size = 2 + Math.random()*3;
+      p.style.width = size+'px'; p.style.height = size+'px';
+      p.style.left = (Math.random()*window.innerWidth)+'px';
+      p.style.top = (Math.random()*window.innerHeight)+'px';
+      p.style.background = 'hsl('+Math.floor(Math.random()*360)+',95%,75%)';
+      p.style.boxShadow = '0 0 6px currentColor';
+      document.body.appendChild(p);
+      var dur = 500 + Math.random()*500;
+      p.animate([
+        {transform:'scale(0)', opacity:0},
+        {transform:'scale(1)', opacity:1, offset:0.4},
+        {transform:'scale(.6)', opacity:0}
+      ], {duration:dur, easing:'ease-out'});
+      setTimeout(function(el){ return function(){ el.remove(); }; }(p), dur+50);
+    }
+    if(Date.now() < end) setTimeout(spawn, 90);
+  })();
+}
+
 /* =========================================================
    TOGGLE ITEM
 ========================================================= */
@@ -1194,7 +1275,7 @@ function toggleItem(it, checked){
 
   if(checked){
     var rect = itemEl.getBoundingClientRect();
-    burst(rect.left+16, rect.top+16);
+    burstBinary(rect.left+16, rect.top+16, 'var(--green-bright)', 10);
     Sound.check();
     if(it.egg === 'grass') { foundEgg('grass'); toast('Nice.', 'Seriously though — go stretch. This one counts.'); }
   } else {
@@ -1224,12 +1305,28 @@ function celebrate(){
   el.classList.add('open');
   Sound.celebrate();
   unlock('full_clearance', 'DIGITAL GHOST', 'Every single item, cleared. Full clearance achieved.');
+
+  // the last, biggest easter egg: everything goes rainbow for a few seconds —
+  // falling matrix letters, the whole theme, and a field of sparkles.
+  var celebrateMs = 6000;
+  var priorHue = state.themeHue;
+  window.__matrixRainbow = true;
+  var rainbowStart = Date.now();
+  var rainbowTimer = setInterval(function(){
+    applyTheme(Math.floor(((Date.now()-rainbowStart)/16) % 360));
+  }, 60);
+  sparkleField(celebrateMs);
   var end = Date.now() + 2200;
   (function frame(){
-    burst(window.innerWidth*Math.random(), window.innerHeight*0.3 + Math.random()*80);
+    burstBinary(window.innerWidth*Math.random(), window.innerHeight*0.3 + Math.random()*80, 'hsl('+Math.floor(Math.random()*360)+',95%,72%)', 14);
     if(Date.now() < end) requestAnimationFrame(frame);
   })();
   setTimeout(function(){ el.classList.remove('open'); }, 4200);
+  setTimeout(function(){
+    clearInterval(rainbowTimer);
+    window.__matrixRainbow = false;
+    applyTheme(priorHue);
+  }, celebrateMs);
   el.addEventListener('click', function once(){ el.classList.remove('open'); el.removeEventListener('click', once); });
 }
 
@@ -1243,6 +1340,8 @@ function celebrate(){
   var chars = 'アイウエオカキクケコサシスセソ0123456789:.="*+-<>ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   var fontSize = 15;
   var cols, drops;
+  var ripple = null; // {x, y, start}
+  window.__triggerMatrixRipple = function(x, y){ ripple = {x:x, y:y, start:Date.now()}; };
   function resize(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -1254,12 +1353,27 @@ function celebrate(){
   function draw(){
     ctx.fillStyle = 'rgba(5,8,7,0.14)';
     ctx.fillRect(0,0,canvas.width,canvas.height);
+    var rippleAge = ripple ? (Date.now() - ripple.start) : null;
+    if(ripple && rippleAge > 1100) ripple = null;
+    var rippleRadius = ripple ? (rippleAge/1100) * Math.max(canvas.width, canvas.height) * 0.9 : 0;
     for(var i=0;i<cols;i++){
       var isSpark = Math.random() < 0.02;
-      ctx.fillStyle = isSpark ? '#eafff2' : (Math.random()<0.08 ? window.__matrixBright : window.__matrixDim);
+      var charX = i*fontSize, charY = drops[i]*fontSize;
+      var rippled = false;
+      if(ripple){
+        var dist = Math.hypot(charX-ripple.x, charY-ripple.y);
+        if(Math.abs(dist-rippleRadius) < 55) rippled = true;
+      }
+      if(window.__matrixRainbow){
+        ctx.fillStyle = isSpark ? '#ffffff' : 'hsl('+Math.floor(Math.random()*360)+',95%,72%)';
+      } else if(rippled){
+        ctx.fillStyle = '#ffffff';
+      } else {
+        ctx.fillStyle = isSpark ? '#eafff2' : (Math.random()<0.08 ? window.__matrixBright : window.__matrixDim);
+      }
       ctx.font = fontSize+'px monospace';
       var char = chars[Math.floor(Math.random()*chars.length)];
-      ctx.fillText(char, i*fontSize, drops[i]*fontSize);
+      ctx.fillText(char, charX, charY);
       if(drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
       drops[i]++;
     }
@@ -1594,33 +1708,67 @@ renderSoundIcon();
 ========================================================= */
 (function whiteRabbit(){
   var el = document.getElementById('white-rabbit');
+  var rotor = el.querySelector('.rabbit-rotor');
   var running = false;
   var rafId = null;
-  var startTime = 0, durationMs = 0, totalDist = 0, hopMs = 0, hopHeight = 0;
+  var startTime = 0, durationMs = 0, hopMs = 0, hopHeight = 0;
+  var curEdge = 'bottom';
+
+  // bottom/top travel horizontally (animate `left`); left/right travel
+  // vertically (animate `top`) with the sprite rotated onto its side.
+  // `invert` flips which raw rotation angle counts as "forward" for that edge.
+  var EDGES = {
+    bottom: { pin:'bottom', axis:'left', rotate:0,   invert:false },
+    top:    { pin:'top',    axis:'left', rotate:0,   invert:false },
+    left:   { pin:'left',   axis:'top',  rotate:90,  invert:false },
+    right:  { pin:'right',  axis:'top',  rotate:-90, invert:true  }
+  };
+  var EDGE_NAMES = ['bottom', 'top', 'left', 'right'];
+  var edgeCfg = null;
 
   function scheduleRun(){
-    var delay = 90000 + Math.random()*120000; // roughly every 1.5-3.5 min
+    var delay = 45000 + Math.random()*55000; // roughly every 45s-100s
     setTimeout(runOnce, delay);
+  }
+
+  function clearPin(){
+    el.style.top = ''; el.style.bottom = ''; el.style.left = ''; el.style.right = '';
+  }
+
+  function visibleHoleLetters(){
+    return (window.__titleHoleLetters || []).filter(function(letterEl){
+      var r = letterEl.getBoundingClientRect();
+      return r.width > 0 && r.top > -20 && r.top < window.innerHeight + 20 &&
+             r.left > -20 && r.left < window.innerWidth + 20;
+    });
   }
 
   // One hop cycle: a smooth up-down arc (sine, always >=0) plus squash on the
   // ground and stretch at the peak, cycling through 4 sprite poses in sync:
   // crouch (about to spring) -> rise (pushing off) -> peak (full stretch)
   // -> land (reaching for touchdown) -> back to crouch.
-  function applyPose(hopT){
+  function poseForHopT(hopT){
+    if(hopT >= 0.10 && hopT < 0.40) return 'rise';
+    if(hopT >= 0.40 && hopT < 0.62) return 'peak';
+    if(hopT >= 0.62 && hopT < 0.92) return 'land';
+    return 'crouch';
+  }
+
+  function applyPose(hopT, edge){
     hopT = Math.min(1, Math.max(0, hopT));
     var lift = Math.sin(hopT * Math.PI); // 0..1..0 per hop
     var y = lift * hopHeight;
     var airborne = hopT > 0.14 && hopT < 0.86;
-    var pose = 'crouch';
-    if(hopT >= 0.10 && hopT < 0.40) pose = 'rise';
-    else if(hopT >= 0.40 && hopT < 0.62) pose = 'peak';
-    else if(hopT >= 0.62 && hopT < 0.92) pose = 'land';
-    el.setAttribute('data-pose', pose);
+    el.setAttribute('data-pose', poseForHopT(hopT));
     var stretch = 1 + lift*0.16;
     var squashX = airborne ? (2 - stretch) : 1.1;
     var squashY = airborne ? stretch : 0.88;
-    el.style.transform = 'translateY(-'+y.toFixed(1)+'px) scaleX('+squashX.toFixed(2)+') scaleY('+squashY.toFixed(2)+')';
+    var bounce;
+    if(edge === 'top') bounce = 'translateY('+y.toFixed(1)+'px)';
+    else if(edge === 'left') bounce = 'translateX('+y.toFixed(1)+'px)';
+    else if(edge === 'right') bounce = 'translateX('+(-y).toFixed(1)+'px)';
+    else bounce = 'translateY('+(-y).toFixed(1)+'px)'; // bottom (default)
+    el.style.transform = bounce+' scaleX('+squashX.toFixed(2)+') scaleY('+squashY.toFixed(2)+')';
   }
 
   function step(now){
@@ -1630,32 +1778,127 @@ renderSoundIcon();
       finish();
       return;
     }
-    el.style.left = (-70 + t*totalDist).toFixed(1)+'px';
-    applyPose((elapsed % hopMs) / hopMs);
+    var cfg = edgeCfg;
+    var pos = cfg.forward ? (-70 + t*cfg.span) : (cfg.span - 70 - t*cfg.span);
+    el.style[cfg.axis] = pos.toFixed(1)+'px';
+    applyPose((elapsed % hopMs) / hopMs, curEdge);
     rafId = requestAnimationFrame(step);
   }
 
   function finish(){
     running = false;
     rafId = null;
-    el.classList.remove('running');
+    el.classList.remove('running', 'hiding');
     el.removeAttribute('data-pose');
     el.style.transform = '';
+    el.style.opacity = '';
+    rotor.style.transform = '';
+    clearPin();
     scheduleRun();
+  }
+
+  function runEdgeCrossing(){
+    var edgeName = EDGE_NAMES[Math.floor(Math.random()*EDGE_NAMES.length)];
+    var cfg = EDGES[edgeName];
+    var forward = Math.random() < 0.5;
+    var horizontal = cfg.axis === 'left';
+    var span = horizontal ? (window.innerWidth + 140) : (window.innerHeight + 140);
+    curEdge = edgeName;
+    edgeCfg = { axis:cfg.axis, forward:forward, span:span };
+    durationMs = (6 + Math.random()*3.5) * 1000;
+    hopMs = 1300 + Math.random()*350; // slow, deliberate hops
+    hopHeight = 16 + Math.random()*8;
+    clearPin();
+    el.style[cfg.pin] = '8px';
+    el.style[cfg.axis] = (forward ? -70 : span-70)+'px';
+    el.style.transform = '';
+    var faceFlip = (forward !== cfg.invert) ? 1 : -1;
+    rotor.style.transform = 'rotate('+cfg.rotate+'deg) scaleX('+faceFlip+')';
+    el.classList.add('running');
+    startTime = performance.now();
+    rafId = requestAnimationFrame(step);
+  }
+
+  // Point-to-point hop, used for sneaking up to a title letter and dashing
+  // away again — independent of the edge-crossing path above.
+  function hopTo(x0, y0, x1, y1, dur, onDone){
+    var t0 = performance.now();
+    (function frame(now){
+      var elapsed = now - t0;
+      var t = elapsed/dur;
+      if(t >= 1 || document.hidden){
+        el.style.left = x1.toFixed(1)+'px'; el.style.top = y1.toFixed(1)+'px';
+        el.style.transform = '';
+        onDone();
+        return;
+      }
+      el.style.left = (x0+(x1-x0)*t).toFixed(1)+'px';
+      el.style.top = (y0+(y1-y0)*t).toFixed(1)+'px';
+      var hopT = (elapsed % hopMs)/hopMs;
+      var lift = Math.sin(Math.min(1,hopT)*Math.PI)*hopHeight;
+      el.setAttribute('data-pose', poseForHopT(hopT));
+      el.style.transform = 'translateY(-'+lift.toFixed(1)+'px)';
+      rafId = requestAnimationFrame(frame);
+    })(t0);
+  }
+
+  function edgeExitPoint(fromX, fromY){
+    var edgeName = EDGE_NAMES[Math.floor(Math.random()*EDGE_NAMES.length)];
+    if(edgeName === 'left') return {x:-70, y:fromY};
+    if(edgeName === 'right') return {x:window.innerWidth+70, y:fromY};
+    if(edgeName === 'top') return {x:fromX, y:-70};
+    return {x:fromX, y:window.innerHeight+70};
+  }
+
+  function hideAtHole(x, y){
+    el.classList.add('hiding');
+    el.removeAttribute('data-pose');
+    el.style.transform = 'scale(.4)';
+    el.style.opacity = '.88';
+    var hideMs = 1300 + Math.random()*700;
+    setTimeout(function(){
+      if(!running) return; // caught while peeking
+      el.style.transform = 'scale(1)';
+      el.style.opacity = '1';
+      setTimeout(function(){
+        if(!running) return;
+        el.classList.remove('hiding');
+        var exit = edgeExitPoint(x, y);
+        rotor.style.transform = 'rotate(0deg) scaleX('+(exit.x < x ? -1 : 1)+')';
+        hopTo(x, y, exit.x, exit.y, 1400 + Math.random()*500, finish);
+      }, 260);
+    }, hideMs);
+  }
+
+  function runHideSequence(targetEl){
+    running = true;
+    clearPin();
+    var rect = targetEl.getBoundingClientRect();
+    var targetX = rect.left + rect.width/2 - 16;
+    var targetY = rect.top + rect.height/2 - 16;
+    var fromLeft = targetX < window.innerWidth/2;
+    var startX = fromLeft ? -70 : window.innerWidth+70;
+    var startY = window.innerHeight + 70;
+    hopMs = 1300 + Math.random()*300;
+    hopHeight = 16 + Math.random()*6;
+    el.style.left = startX+'px';
+    el.style.top = startY+'px';
+    rotor.style.transform = 'rotate(0deg) scaleX('+(fromLeft?1:-1)+')';
+    el.classList.add('running');
+    hopTo(startX, startY, targetX, targetY, 1600 + Math.random()*500, function(){
+      hideAtHole(targetX, targetY);
+    });
   }
 
   function runOnce(){
     if(document.hidden || document.body.classList.contains('reduced-motion-skip')){ scheduleRun(); return; }
-    running = true;
-    durationMs = (6 + Math.random()*3.5) * 1000;
-    totalDist = window.innerWidth + 140;
-    hopMs = 900 + Math.random()*220; // slow, deliberate hops (not a blur of tiny bounces)
-    hopHeight = 16 + Math.random()*8;
-    el.style.left = '-70px';
-    el.style.transform = '';
-    el.classList.add('running');
-    startTime = performance.now();
-    rafId = requestAnimationFrame(step);
+    var holes = visibleHoleLetters();
+    if(holes.length && Math.random() < 0.3){
+      runHideSequence(holes[Math.floor(Math.random()*holes.length)]);
+    } else {
+      running = true;
+      runEdgeCrossing();
+    }
   }
 
   el.addEventListener('click', function(e){
@@ -1663,10 +1906,13 @@ renderSoundIcon();
     e.stopPropagation();
     var rect = el.getBoundingClientRect();
     if(rafId) cancelAnimationFrame(rafId);
-    el.classList.remove('running');
+    running = false;
+    el.classList.remove('running', 'hiding');
     el.removeAttribute('data-pose');
     el.style.transform = '';
-    running = false;
+    el.style.opacity = '';
+    rotor.style.transform = '';
+    clearPin();
     catchRabbit(rect.left + rect.width/2, rect.top + rect.height/2);
     scheduleRun();
   });
@@ -1685,9 +1931,51 @@ function catchRabbit(x, y){
   applyTheme(hue);
   foundEgg('white_rabbit');
   Sound.egg();
-  burst(x || window.innerWidth/2, y || window.innerHeight - 20, 'hsl('+hue+',95%,72%)');
+  var cx = x || window.innerWidth/2, cy = y || window.innerHeight - 20;
+  burstBinary(cx, cy, 'hsl('+hue+',95%,72%)');
+  if(window.__triggerMatrixRipple) window.__triggerMatrixRipple(cx, cy);
   toast('YOU CAUGHT THE WHITE RABBIT', label + ' Catch it again for another shift.', 'egg');
 }
+
+/* =========================================================
+   TITLE LETTER HOLES (for the white rabbit to hide in)
+========================================================= */
+(function prepareTitleHoles(){
+  var span = document.querySelector('#glitch-title .glitch');
+  if(!span) return;
+  var text = span.textContent;
+  var holeChars = {O:1, A:1, B:1, D:1, P:1, Q:1, R:1};
+  var frag = document.createDocumentFragment();
+  var holes = [];
+  // Each word is wrapped in its own nowrap span so the browser can only
+  // break the line at the space between words, not between individual
+  // per-letter spans (inline-block boxes otherwise introduce a break
+  // opportunity at every letter boundary, causing mid-word wraps).
+  var words = text.split(' ');
+  words.forEach(function(word, wi){
+    if(word.length){
+      var wordSpan = document.createElement('span');
+      wordSpan.style.display = 'inline-block';
+      wordSpan.style.whiteSpace = 'nowrap';
+      for(var i=0;i<word.length;i++){
+        var ch = word[i];
+        var s = document.createElement('span');
+        s.textContent = ch;
+        s.style.display = 'inline-block';
+        if(holeChars[ch.toUpperCase()]){
+          s.className = 'title-hole-letter';
+          holes.push(s);
+        }
+        wordSpan.appendChild(s);
+      }
+      frag.appendChild(wordSpan);
+    }
+    if(wi < words.length - 1) frag.appendChild(document.createTextNode(' '));
+  });
+  span.innerHTML = '';
+  span.appendChild(frag);
+  window.__titleHoleLetters = holes;
+})();
 
 /* =========================================================
    INIT

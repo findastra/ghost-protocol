@@ -20,6 +20,7 @@
     --amber:#ffcf5c;
     --cyan:#5ce8ff;
     --magenta:#ff6df0;
+    --green-rgb:60,255,142;
     --radius:10px;
     --mono:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     --display:'Orbitron', var(--mono);
@@ -76,7 +77,7 @@
     font-family:var(--display); font-weight:700; letter-spacing:.06em;
     font-size:13px; padding:4px 2px; user-select:none;
   }
-  .hud-logo svg{width:20px; height:20px; filter:drop-shadow(0 0 6px rgba(60,255,142,.55));}
+  .hud-logo svg{width:20px; height:20px; filter:drop-shadow(0 0 6px rgba(var(--green-rgb),.55));}
   .hud-stats{display:flex; align-items:center; gap:16px; margin-left:auto; flex-wrap:wrap; font-size:11.5px; color:var(--text-dim);}
   .sound-toggle{
     flex:none; width:30px; height:30px; border-radius:50%; margin-left:6px;
@@ -107,7 +108,7 @@
     font-family:var(--display); font-weight:900; letter-spacing:.01em;
     font-size:clamp(28px,7vw,48px); line-height:1.05; margin:0 0 12px;
     color:var(--white);
-    text-shadow:0 0 18px rgba(60,255,142,.35), 0 0 2px rgba(255,255,255,.4);
+    text-shadow:0 0 18px rgba(var(--green-rgb),.35), 0 0 2px rgba(255,255,255,.4);
     text-wrap:balance;
     cursor:default;
   }
@@ -123,7 +124,7 @@
   .pill b{color:var(--green-bright); font-weight:600;}
   .rank-badge{
     display:inline-flex; align-items:center; gap:8px;
-    border:1px solid var(--green-dim); background:linear-gradient(180deg, rgba(60,255,142,.10), rgba(60,255,142,.02));
+    border:1px solid var(--green-dim); background:linear-gradient(180deg, rgba(var(--green-rgb),.10), rgba(var(--green-rgb),.02));
     border-radius:99px; padding:6px 14px 6px 8px;
   }
   .rank-badge .rank-icon{
@@ -153,7 +154,7 @@
     background:none; border:none; color:var(--text); cursor:pointer;
     padding:14px 16px; text-align:left;
   }
-  .tier-head:hover{background:rgba(60,255,142,.04);}
+  .tier-head:hover{background:rgba(var(--green-rgb),.04);}
   .tier-idx{
     font-family:var(--display); font-weight:900; font-size:20px; color:var(--tier-accent, var(--green));
     width:34px; flex:none; text-align:center; opacity:.85;
@@ -189,7 +190,7 @@
   }
   .chk:hover{border-color:var(--green);}
   .chk:focus-visible{outline:2px solid var(--green-bright); outline-offset:2px;}
-  .chk:checked{background:var(--green); border-color:var(--green); box-shadow:0 0 12px rgba(60,255,142,.6);}
+  .chk:checked{background:var(--green); border-color:var(--green); box-shadow:0 0 12px rgba(var(--green-rgb),.6);}
   .chk:checked::after{
     content:''; position:absolute; left:6px; top:2px; width:6px; height:11px;
     border:solid #04140a; border-width:0 2.5px 2.5px 0; transform:rotate(40deg);
@@ -211,7 +212,7 @@
     font-size:12.5px; color:var(--text); padding-left:0;
   }
   .item.expanded .item-detail{max-height:200px;}
-  .item-detail-inner{padding:8px 12px; margin-top:6px; border-left:2px solid var(--green-dim); background:rgba(60,255,142,.04);}
+  .item-detail-inner{padding:8px 12px; margin-top:6px; border-left:2px solid var(--green-dim); background:rgba(var(--green-rgb),.04);}
 
   /* ---------- footer ---------- */
   footer{margin-top:36px; padding-top:20px; border-top:1px dashed var(--border-soft); font-size:11.5px; color:var(--text-dim);}
@@ -233,9 +234,17 @@
     background:var(--surface); border:1px solid var(--green-dim);
     color:var(--green-bright); font-family:var(--display); font-size:16px;
     display:flex; align-items:center; justify-content:center; cursor:pointer;
-    box-shadow:0 0 22px rgba(60,255,142,.25); transition:transform .2s ease;
+    box-shadow:0 0 22px rgba(var(--green-rgb),.25); transition:transform .2s ease;
   }
   .term-launcher:hover{transform:scale(1.06);}
+  #white-rabbit{
+    position:fixed; bottom:8px; left:-60px; z-index:41; font-size:26px; cursor:pointer;
+    display:none; user-select:none; -webkit-user-select:none; line-height:1;
+    filter:drop-shadow(0 0 6px rgba(255,255,255,.7)); transform:scaleX(-1);
+    background:none; border:none; padding:4px;
+  }
+  #white-rabbit.running{display:block;}
+  #white-rabbit:hover{filter:drop-shadow(0 0 10px rgba(255,255,255,.95));}
   .term-panel{
     position:fixed; right:18px; bottom:82px; z-index:40;
     width:min(360px, calc(100vw - 36px)); height:min(320px, 50vh);
@@ -250,6 +259,8 @@
   .term-log{flex:1; overflow-y:auto; padding:10px 12px; font-size:12px; line-height:1.55;}
   .term-log div{margin-bottom:4px; word-wrap:break-word;}
   .term-log .cmd::before{content:'guest@ghost:~$ '; color:var(--green-dim);}
+  .term-log .ai-reply{color:var(--cyan); white-space:pre-wrap;}
+  .term-log .ai-reply::before{content:'ghost_ai> '; color:var(--green-dim);}
   .term-input-row{display:flex; align-items:center; border-top:1px solid var(--border); padding:8px 10px; gap:6px;}
   .term-input-row span{color:var(--green-dim); font-size:12px;}
   .term-input-row input{
@@ -291,7 +302,7 @@
     background:rgba(2,8,4,.88); opacity:0; pointer-events:none; transition:opacity .4s ease; text-align:center; padding:20px;
   }
   #celebrate.open{opacity:1; pointer-events:auto;}
-  #celebrate h2{font-family:var(--display); font-size:clamp(22px,6vw,36px); color:var(--white); text-shadow:0 0 24px rgba(60,255,142,.7); margin:0 0 10px;}
+  #celebrate h2{font-family:var(--display); font-size:clamp(22px,6vw,36px); color:var(--white); text-shadow:0 0 24px rgba(var(--green-rgb),.7); margin:0 0 10px;}
   #celebrate p{color:var(--green-bright); font-size:13px; letter-spacing:.05em;}
 
   .particle{position:fixed; z-index:55; border-radius:50%; pointer-events:none;}
@@ -335,7 +346,7 @@
 
 <div class="wrap">
   <div class="hero">
-    <div class="hero-eyebrow"><span class="dot"></span> SECURE_CHECKLIST // AUDRA-INSTANCE</div>
+    <div class="hero-eyebrow"><span class="dot"></span> SECURE_CHECKLIST // ASTRA-INSTANCE</div>
     <h1 class="title" id="glitch-title"><span class="glitch">YOUR PERSONAL SECURITY CHECKLIST</span></h1>
     <p class="sub">Ordered from "do this today" to "this is genuinely nitty-gritty." Check things off as you actually do them &mdash; your progress saves in this browser, and stays yours alone. Anyone else who opens this link gets their own blank run.</p>
     <div class="hero-meta">
@@ -354,13 +365,14 @@
 
   <footer>
     <div class="foot-row">
-      <span>Built for Audra by Claude &middot; open-sourced on <a href="https://github.com/findastra/Ghost-Protocol" id="footer-gh-link" target="_blank" rel="noopener">GitHub</a></span>
+      <span>Built for Astra by Claude &middot; open-sourced on <a href="https://github.com/findastra/Ghost-Protocol" id="footer-gh-link" target="_blank" rel="noopener">GitHub</a></span>
       <button class="ghost-btn" id="reset-btn">Reset my progress</button>
     </div>
     <div style="margin-top:10px; opacity:.5;">v1.0 &middot; <span class="bug" id="hidden-bug" title=""></span></div>
   </footer>
 </div>
 
+<button id="white-rabbit" aria-label="A white rabbit. Catch it." title="?">&#128007;</button>
 <button class="term-launcher" id="term-launcher" aria-label="Open terminal" title="Open terminal">&gt;_</button>
 <div class="term-panel" id="term-panel">
   <div class="term-bar">
@@ -407,14 +419,14 @@ var TIERS = [
     id:'t0', code:'00', name:'ROOT ACCESS', tag:'Do these before anything else. This is how accounts actually get taken over.',
     accent:'var(--danger)',
     items:[
-      {t:'Get a password manager', b:'One vault, one strong master password, unique random passwords everywhere else.', d:'Reusing passwords means one breached site can unlock your entire life. Use Bitwarden, 1Password, or similar to generate and store a unique, random password for every account. Your only job is remembering one strong master password or passphrase.'},
+      {t:'Get a password manager', b:'One vault, one strong master password, unique random passwords everywhere else.', d:'Reusing passwords means one breached site can unlock your entire life. Use <a href="https://bitwarden.com/" target="_blank" rel="noopener">Bitwarden</a>, <a href="https://1password.com/" target="_blank" rel="noopener">1Password</a>, or similar to generate and store a unique, random password for every account. Your only job is remembering one strong master password or passphrase.'},
       {t:'Turn on MFA everywhere', b:'Authenticator app or hardware key, not just SMS.', d:'Multi-factor authentication is the single biggest lever against account takeover. Prioritize an authenticator app or a hardware key over SMS codes, which can be intercepted via SIM-swap attacks. Start with email, banking, and your password manager.'},
       {t:'Automatic updates, everywhere', b:'OS, browser, phone, router firmware — set it and forget it.', d:'Most real-world breaches exploit known, already-patched vulnerabilities. Turn on automatic updates for your operating system, browser, phone, and router firmware so you are never running software with a public, unpatched hole.'},
-      {t:'Full-disk encryption', b:'BitLocker, FileVault, or LUKS — on every laptop and desktop.', d:'If a device is lost or stolen, disk encryption keeps your files unreadable to anyone who simply pulls the drive. It is built into every modern OS and free to turn on.'},
+      {t:'Full-disk encryption', b:'BitLocker, FileVault, or LUKS — on every laptop and desktop.', d:'If a device is lost or stolen, disk encryption keeps your files unreadable to anyone who simply pulls the drive. It is built into every modern OS and free to turn on — <a href="https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/" target="_blank" rel="noopener">BitLocker</a> on Windows, <a href="https://support.apple.com/guide/mac-help/protect-data-on-your-mac-with-filevault-mh11785/mac" target="_blank" rel="noopener">FileVault</a> on Mac, <a href="https://gitlab.com/cryptsetup/cryptsetup" target="_blank" rel="noopener">LUKS</a> on Linux.'},
       {t:'Real lock screens', b:'6+ digit PIN or biometric on every phone, tablet, and laptop.', d:'No swipe-to-unlock, no 4-digit PINs if longer is offered. A device that is always unlocked is a device anyone nearby can walk right into.'},
       {t:'3-2-1 backups, tested', b:'3 copies, 2 media types, 1 offsite — and actually try a restore.', d:'Ransomware and hardware failure both end the same way without backups: total loss. Keep three copies of anything irreplaceable across two kinds of storage, at least one offsite or offline, and periodically prove the restore actually works.'},
       {t:'Change your router’s defaults', b:'New admin password, current firmware.', d:'Routers ship with well-known default admin credentials that get scanned for constantly. Change the admin password immediately and keep firmware current — this is the front door to your entire home network.'},
-      {t:'Know how to freeze your credit', b:'Equifax, Experian, TransUnion — free and reversible.', d:'A credit freeze blocks anyone, including you until you lift it, from opening new credit in your name. It costs nothing, takes minutes per bureau, and is one of the strongest defenses against identity theft.'},
+      {t:'Know how to freeze your credit', b:'Equifax, Experian, TransUnion — free and reversible.', d:'A credit freeze blocks anyone, including you until you lift it, from opening new credit in your name. It costs nothing, takes minutes per bureau, and is one of the strongest defenses against identity theft — <a href="https://www.equifax.com/personal/credit-report-services/credit-freeze/" target="_blank" rel="noopener">Equifax</a>, <a href="https://www.experian.com/freeze/center.html" target="_blank" rel="noopener">Experian</a>, <a href="https://www.transunion.com/credit-freeze" target="_blank" rel="noopener">TransUnion</a>.'},
       {t:'Store recovery codes offline', b:'Printed, in a safe — not a screenshot in your camera roll.', d:'Backup codes for critical accounts should not depend on the internet or your phone. A fireproof safe or safety-deposit box means that if your password manager and phone are both compromised at once, you still have a way back in.'},
       {t:'A real recovery email/phone', b:'Separate from your daily-driver inbox, for critical accounts only.', d:'The account recovery flow is a favorite target for attackers. A dedicated recovery address nobody knows to target, used only for recovery settings, closes that door.'}
     ]
@@ -423,30 +435,30 @@ var TIERS = [
     id:'t1', code:'01', name:'PERIMETER', tag:'Strong defenses that close the next layer of common attacks.',
     accent:'var(--amber)',
     items:[
-      {t:'Hardware security key', b:'YubiKey or similar, on your primary email, vault, and bank.', d:'A physical key defeats phishing outright — even a perfect fake login page cannot extract a signature from a key that is not plugged in. Reserve it for the handful of accounts that would be catastrophic to lose.'},
+      {t:'Hardware security key', b:'YubiKey or similar, on your primary email, vault, and bank.', d:'A physical key (<a href="https://www.yubico.com/" target="_blank" rel="noopener">YubiKey</a> is the common choice) defeats phishing outright — even a perfect fake login page cannot extract a signature from a key that is not plugged in. Reserve it for the handful of accounts that would be catastrophic to lose.'},
       {t:'New-device / new-login alerts', b:'Email, banking, social — know the moment someone else logs in.', d:'Most platforms offer a setting to alert you on unrecognized sign-ins. It is a free early-warning system that can catch a breach in minutes instead of months.'},
       {t:'Separate your email accounts', b:'Personal, financial, work, and throwaway — not all the same inbox.', d:'One compromised inbox should not cascade into your bank, your job, and your personal life. Splitting by purpose limits the blast radius of any single breach.'},
-      {t:'Audit your OAuth connections', b:'“Sign in with Google/Apple” apps — revoke what you don’t use.', d:'Every app you have ever granted account access to is a standing door into that account. Check your connected-apps pages quarterly and revoke anything you no longer use.'},
+      {t:'Audit your OAuth connections', b:'“Sign in with Google/Apple” apps — revoke what you don’t use.', d:'Every app you have ever granted account access to is a standing door into that account. Check your connected-apps pages quarterly and revoke anything you no longer use — <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google</a>, <a href="https://appleid.apple.com/account/manage" target="_blank" rel="noopener">Apple</a>, <a href="https://account.live.com/consent/Manage" target="_blank" rel="noopener">Microsoft</a>, <a href="https://www.facebook.com/settings?tab=applications" target="_blank" rel="noopener">Facebook</a>.'},
       {t:'Harden your Wi-Fi', b:'WPA3 (or WPA2-AES), WPS off, smart devices on their own network.', d:'WPS has known bypass attacks and older WPA versions are crackable. Use the strongest encryption your router supports, disable WPS entirely, and keep smart-home gadgets off your main network.'},
       {t:'VPN on untrusted networks', b:'Coffee shops, airports, hotel Wi-Fi — always.', d:'Public Wi-Fi makes it trivial for anyone nearby to snoop or intercept traffic. A reputable paid VPN encrypts your connection until you are back on a network you trust.'},
-      {t:'Check for breaches', b:'haveibeenpwned.com or your password manager’s built-in monitor.', d:'Data breaches happen constantly, often quietly. A breach monitor tells you the moment one of your accounts shows up in a leak so you can rotate that password immediately.'},
+      {t:'Check for breaches', b:'haveibeenpwned.com or your password manager’s built-in monitor.', d:'Data breaches happen constantly, often quietly. <a href="https://haveibeenpwned.com/" target="_blank" rel="noopener">haveibeenpwned.com</a> or your password manager’s built-in monitor tells you the moment one of your accounts shows up in a leak so you can rotate that password immediately.'},
       {t:'Encrypt your phone backups', b:'Encrypted iCloud/Google backup, not the plain default.', d:'A standard cloud backup can be readable by the provider. Turning on end-to-end encrypted backup means only you hold the key.'},
       {t:'Find My / remote wipe', b:'On every phone, tablet, and laptop, before you need it.', d:'If a device is lost or stolen, remote-wipe is the difference between an inconvenience and a full data breach — and it has to be turned on beforehand.'},
-      {t:'Real-time antivirus / endpoint protection', b:'Especially on Windows — Defender counts, just keep it on.', d:'Modern built-in protection is genuinely solid, but only if it is actually enabled and up to date. Do not assume — check.'}
+      {t:'Real-time antivirus / endpoint protection', b:'Especially on Windows — Defender counts, just keep it on.', d:'Modern built-in protection is genuinely solid, but only if it is actually enabled and up to date — <a href="https://www.microsoft.com/en-us/windows/comprehensive-security" target="_blank" rel="noopener">Windows Security</a> and <a href="https://support.apple.com/guide/security/welcome/web" target="_blank" rel="noopener">Apple’s built-in protections</a> both count. Do not assume — check.'}
     ]
   },
   {
     id:'t2', code:'02', name:'DEEP FIELD', tag:'Privacy and network hygiene — quieting your footprint.',
     accent:'var(--cyan)',
     items:[
-      {t:'Privacy-respecting DNS', b:'Quad9, NextDNS, or 1.1.1.1 with malware/tracker blocking.', d:'Your DNS resolver sees every domain you visit. Switching from your ISP’s default to one that blocks known malware and tracking domains adds a free layer of protection.'},
-      {t:'Tracker/ad blocking + permission audits', b:'uBlock Origin, plus a periodic check of site camera/mic/location access.', d:'A good blocker cuts off cross-web profiling, and a regular pass through your browser’s site-permissions list catches access you granted once and forgot about.'},
-      {t:'Alias email for signups', b:'A “hide my email” service or alias for newsletters and one-off forms.', d:'Every signup form is a place your real email can leak or get sold. An alias lets you use a unique, disposable address per site and kill it the moment the spam starts.'},
+      {t:'Privacy-respecting DNS', b:'Quad9, NextDNS, or 1.1.1.1 with malware/tracker blocking.', d:'Your DNS resolver sees every domain you visit. Switching from your ISP’s default to <a href="https://quad9.net/" target="_blank" rel="noopener">Quad9</a>, <a href="https://nextdns.io/" target="_blank" rel="noopener">NextDNS</a>, or <a href="https://1.1.1.1/" target="_blank" rel="noopener">1.1.1.1</a> — resolvers that block known malware and tracking domains — adds a free layer of protection.'},
+      {t:'Tracker/ad blocking + permission audits', b:'uBlock Origin, plus a periodic check of site camera/mic/location access.', d:'<a href="https://ublockorigin.com/" target="_blank" rel="noopener">uBlock Origin</a> cuts off cross-web profiling, and a regular pass through your browser’s site-permissions list catches access you granted once and forgot about.'},
+      {t:'Alias email for signups', b:'A “hide my email” service or alias for newsletters and one-off forms.', d:'Every signup form is a place your real email can leak or get sold. An alias — Apple’s Hide My Email, <a href="https://simplelogin.io/" target="_blank" rel="noopener">SimpleLogin</a>, or similar — lets you use a unique, disposable address per site and kill it the moment the spam starts.'},
       {t:'Lock down social media privacy', b:'Who sees your posts, friends list, and tagged photos.', d:'Social profiles are a goldmine for social-engineering attacks — pet names, schools, birthdays all feed password guesses and security-question answers.'},
-      {t:'Opt out of data brokers', b:'Reduce what people-search sites can surface about you.', d:'Broker sites aggregate your address history, phone numbers, and relatives into a page anyone can pay for. Opting out meaningfully shrinks your public footprint.'},
-      {t:'Move sensitive chats to encrypted messaging', b:'Signal instead of plain SMS for anything that matters.', d:'SMS has no meaningful encryption and can be intercepted via SIM-swap. Signal’s end-to-end encryption keeps the message unreadable to anyone but the people in it.'},
+      {t:'Opt out of data brokers', b:'Reduce what people-search sites can surface about you.', d:'Broker sites aggregate your address history, phone numbers, and relatives into a page anyone can pay for. A free, community-maintained <a href="https://github.com/yaelwrites/Big-Ass-Data-Broker-Opt-Out-List" target="_blank" rel="noopener">opt-out list</a> walks you through the worst offenders one at a time; opting out meaningfully shrinks your public footprint.'},
+      {t:'Move sensitive chats to encrypted messaging', b:'Signal instead of plain SMS for anything that matters.', d:'SMS has no meaningful encryption and can be intercepted via SIM-swap. <a href="https://signal.org/" target="_blank" rel="noopener">Signal</a>’s end-to-end encryption keeps the message unreadable to anyone but the people in it.'},
       {t:'Turn off what you’re not using', b:'Bluetooth, NFC, Wi-Fi auto-connect, when idle.', d:'Radios that are always on are always discoverable. Turning them off when you are not actively using them shrinks your attack surface for free.'},
-      {t:'Host-based firewall, on', b:'Windows Defender Firewall, macOS firewall, or ufw on Linux.', d:'A firewall controls what is allowed to talk to your machine at all. Every mainstream OS ships one — confirm it is actually switched on.'},
+      {t:'Host-based firewall, on', b:'Windows Defender Firewall, macOS firewall, or ufw on Linux.', d:'A firewall controls what is allowed to talk to your machine at all. Every mainstream OS ships one — <a href="https://support.microsoft.com/en-us/windows/turn-microsoft-defender-firewall-on-or-off-ec0844f7-aebd-0583-67fe-601ecf5d774f" target="_blank" rel="noopener">Windows Defender Firewall</a>, <a href="https://support.apple.com/guide/mac-help/block-connections-to-your-mac-with-a-firewall-mh34041/mac" target="_blank" rel="noopener">macOS firewall</a>, <a href="https://help.ubuntu.com/community/UFW" target="_blank" rel="noopener">ufw</a> on Linux — confirm it is actually switched on.'},
       {t:'Shred sensitive paper mail', b:'Anything with account numbers, SSNs, or medical info.', d:'Dumpster diving for pre-approved offers and old statements is a real, low-tech identity-theft method. A cheap cross-cut shredder closes that door completely.'},
       {t:'Lock down router admin access', b:'DNSSEC where supported, remote WAN-side admin off.', d:'Remote router administration from the public internet is a feature most people never need and attackers actively scan for. Turn it off.'}
     ]
@@ -456,14 +468,14 @@ var TIERS = [
     accent:'var(--magenta)',
     items:[
       {t:'Rotate keys and tokens', b:'API keys, tokens, app passwords — on a schedule, and after any offboarding.', d:'A credential that never expires is a credential that, once leaked, works forever. Rotate anything long-lived on a schedule, and immediately after anyone with access is offboarded.'},
-      {t:'Canary tokens', b:'Free tripwires (canarytokens.org) in sensitive folders and documents.', d:'A canary token is a fake credential or document that silently alerts you the moment someone opens it. Free, five minutes to set up, genuinely useful.'},
+      {t:'Canary tokens', b:'Free tripwires (canarytokens.org) in sensitive folders and documents.', d:'A canary token is a fake credential or document that silently alerts you the moment someone opens it. Free at <a href="https://canarytokens.org/" target="_blank" rel="noopener">canarytokens.org</a>, five minutes to set up, genuinely useful.'},
       {t:'Isolate high-risk browsing', b:'A dedicated VM or sandboxed browser profile for sketchy downloads.', d:'One-off downloads or anything you do not fully trust — do it inside a disposable VM or separate browser profile so a bad outcome stays contained.'},
-      {t:'Self-host your password vault', b:'Vaultwarden, if you want zero third-party custody of your secrets.', d:'Self-hosting your password manager means your vault never touches anyone else’s infrastructure — at the cost of being responsible for backing it up yourself.'},
-      {t:'SSH keys, not passwords', b:'Ideally hardware-backed (FIDO2), with password auth disabled entirely.', d:'Password-based SSH is a brute-force target the moment a server is internet-facing. Key-based auth removes that surface — then disable password auth on the server.'},
-      {t:'Audit account access logs', b:'Google, Microsoft, AWS — check for sessions you don’t recognize.', d:'Most major providers keep a login-history page most people never open. A periodic look catches quiet intrusions long before anything else would.'},
+      {t:'Self-host your password vault', b:'Vaultwarden, if you want zero third-party custody of your secrets.', d:'Self-hosting your password manager (<a href="https://github.com/dani-garcia/vaultwarden" target="_blank" rel="noopener">Vaultwarden</a> is the popular Bitwarden-compatible option) means your vault never touches anyone else’s infrastructure — at the cost of being responsible for backing it up yourself.'},
+      {t:'SSH keys, not passwords', b:'Ideally hardware-backed (FIDO2), with password auth disabled entirely.', d:'Password-based SSH is a brute-force target the moment a server is internet-facing. <a href="https://fidoalliance.org/" target="_blank" rel="noopener">FIDO2</a>-backed key-based auth removes that surface — then disable password auth on the server.'},
+      {t:'Audit account access logs', b:'Google, Microsoft, AWS — check for sessions you don’t recognize.', d:'Most major providers keep a login-history page most people never open — <a href="https://myaccount.google.com/security" target="_blank" rel="noopener">Google</a>, <a href="https://account.microsoft.com/security" target="_blank" rel="noopener">Microsoft</a>, <a href="https://aws.amazon.com/security/" target="_blank" rel="noopener">AWS</a>. A periodic look catches quiet intrusions long before anything else would.'},
       {t:'Segment your home network', b:'IoT, guests, and trusted devices each on their own VLAN.', d:'A smart bulb has no business talking to your NAS. VLANs mean a compromised smart-home gadget cannot reach the devices that actually matter.'},
-      {t:'GPG/PGP for email that must survive interception', b:'For the rare message that truly can’t be read in transit.', d:'Standard email is effectively postcards, readable at several points in transit. GPG/PGP encrypts the message itself so only the intended recipient’s key can open it.'},
-      {t:'A hardened OS for high-risk sessions', b:'Tails or Qubes, on a dedicated drive, for your highest threat-model moments.', d:'Tails leaves no trace on the host machine; Qubes compartmentalizes everything into isolated VMs. Overkill for daily use, exactly right for the moments it is actually needed.'},
+      {t:'GPG/PGP for email that must survive interception', b:'For the rare message that truly can’t be read in transit.', d:'Standard email is effectively postcards, readable at several points in transit. <a href="https://gnupg.org/" target="_blank" rel="noopener">GPG</a>/PGP encrypts the message itself so only the intended recipient’s key can open it.'},
+      {t:'A hardened OS for high-risk sessions', b:'Tails or Qubes, on a dedicated drive, for your highest threat-model moments.', d:'<a href="https://tails.net/" target="_blank" rel="noopener">Tails</a> leaves no trace on the host machine; <a href="https://www.qubes-os.org/" target="_blank" rel="noopener">Qubes</a> compartmentalizes everything into isolated VMs. Overkill for daily use, exactly right for the moments it is actually needed.'},
       {t:'Air-gapped backup of your master secrets', b:'Recovery seed phrases and master-password hints — offline, always.', d:'Your most critical secrets should exist on paper or metal in a safe, never as a photo, note, or file on any internet-connected device.'},
       {t:'Touch grass', b:'Step away from the screen sometimes. Burnout causes security mistakes.', d:'Tired, rushed, and distracted are exactly the conditions phishing and social engineering are built to exploit. The item most people skip: rest is part of your threat model too.', egg:'grass'}
     ]
@@ -486,7 +498,7 @@ var STORE_KEY = 'ghost_protocol_state_v1';
 var state = loadState();
 
 function defaultState(){
-  return { checked:{}, expanded:{}, eggs:[], achievements:[], muted:false, localVisits:0, celebrated:false };
+  return { checked:{}, expanded:{}, eggs:[], achievements:[], muted:false, localVisits:0, celebrated:false, rabbitCatches:0, themeHue:null, neoCalls:0 };
 }
 function loadState(){
   try{
@@ -500,6 +512,41 @@ function loadState(){
 }
 function saveState(){
   try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+/* =========================================================
+   THEME (white rabbit color-shift)
+========================================================= */
+var NEON_HUES = [180, 195, 210, 265, 285, 45, 60, 95, 25, 335];
+window.__matrixBright = '#8cffc0';
+window.__matrixDim = '#1fae5f';
+function hslToRgb(h, s, l){
+  s/=100; l/=100;
+  var c = (1 - Math.abs(2*l-1)) * s;
+  var x = c * (1 - Math.abs((h/60) % 2 - 1));
+  var m = l - c/2;
+  var r,g,b;
+  if(h<60){ r=c;g=x;b=0; } else if(h<120){ r=x;g=c;b=0; } else if(h<180){ r=0;g=c;b=x; }
+  else if(h<240){ r=0;g=x;b=c; } else if(h<300){ r=x;g=0;b=c; } else { r=c;g=0;b=x; }
+  return [Math.round((r+m)*255), Math.round((g+m)*255), Math.round((b+m)*255)];
+}
+function applyTheme(hue){
+  var root = document.documentElement.style;
+  if(hue === null || hue === undefined){
+    ['--green','--green-dim','--green-bright','--green-rgb','--text','--border','--border-soft'].forEach(function(p){ root.removeProperty(p); });
+    window.__matrixBright = '#8cffc0';
+    window.__matrixDim = '#1fae5f';
+    return;
+  }
+  root.setProperty('--green', 'hsl('+hue+',90%,62%)');
+  root.setProperty('--green-dim', 'hsl('+hue+',70%,28%)');
+  root.setProperty('--green-bright', 'hsl('+hue+',95%,78%)');
+  root.setProperty('--green-rgb', hslToRgb(hue,90,62).join(','));
+  root.setProperty('--text', 'hsl('+hue+',55%,84%)');
+  root.setProperty('--border', 'hsl('+hue+',45%,18%)');
+  root.setProperty('--border-soft', 'hsl('+hue+',40%,12%)');
+  window.__matrixBright = 'hsl('+hue+',95%,80%)';
+  window.__matrixDim = 'hsl('+hue+',75%,42%)';
 }
 
 var ALL_ITEMS = [];
@@ -826,7 +873,7 @@ function celebrate(){
     ctx.fillRect(0,0,canvas.width,canvas.height);
     for(var i=0;i<cols;i++){
       var isSpark = Math.random() < 0.02;
-      ctx.fillStyle = isSpark ? '#eafff2' : (Math.random()<0.08 ? '#8cffc0' : '#1fae5f');
+      ctx.fillStyle = isSpark ? '#eafff2' : (Math.random()<0.08 ? window.__matrixBright : window.__matrixDim);
       ctx.font = fontSize+'px monospace';
       var char = chars[Math.floor(Math.random()*chars.length)];
       ctx.fillText(char, i*fontSize, drops[i]*fontSize);
@@ -906,7 +953,9 @@ document.getElementById('term-launcher').addEventListener('click', function(){
     termInput.focus();
     if(!termOpenedOnce){
       termOpenedOnce = true;
-      termPrint('<div style="color:var(--green-bright)">GHOST_PROTOCOL TERMINAL v1.0</div><div>Type <b>help</b> for commands.</div>');
+      var welcome = '<div style="color:var(--green-bright)">GHOST_PROTOCOL TERMINAL v1.0</div><div>Type <b>help</b> for commands.</div>';
+      if(sampler) welcome += '<div style="color:var(--cyan)">AI chat online — or just ask me anything about this checklist.</div>';
+      termPrint(welcome);
       foundEgg('terminal');
     }
   } else {
@@ -915,9 +964,81 @@ document.getElementById('term-launcher').addEventListener('click', function(){
 });
 document.getElementById('term-close').addEventListener('click', function(){ Sound.termClose(); termPanel.classList.remove('open'); });
 
+/* =========================================================
+   AI TERMINAL ASSISTANT (Claude's built-in "sample" capability --
+   free to the artifact owner, billed to the viewer's own Claude
+   usage, no API key anywhere on this page). Unavailable outside
+   the hosted Claude Artifact (e.g. the plain GitHub Pages copy),
+   where it quietly stays off and the terminal behaves as before.
+========================================================= */
+var sampler = null;
+(function initSampler(){
+  if(!(window.claude && window.claude.use)) return;
+  window.claude.use('sample').then(function(s){ sampler = s; }).catch(function(){});
+})();
+
+function checklistContext(){
+  var lines = [];
+  TIERS.forEach(function(tier){
+    lines.push(tier.code + ' ' + tier.name + ' -- ' + tier.tag);
+    tier.items.forEach(function(it){ lines.push('- ' + it.t + ': ' + it.b); });
+  });
+  return lines.join('\n');
+}
+var AI_INSTRUCTIONS = 'You are the terminal assistant embedded in "Ghost Protocol," a personal cybersecurity checklist website. Below is the full checklist (tier code, name, tagline, then each item with its short blurb). Answer the visitor\'s questions about digital security and about this checklist specifically — which tier something belongs in, why an item matters, what to tackle first, etc. Keep replies short (2-5 sentences), plain text only, no markdown headers or bullet characters, dry hacker-terminal tone but always accurate and genuinely useful. If asked something unrelated to security or this checklist, answer briefly and nudge back toward the checklist. Never claim the checklist contains an item it does not.\n\nTHE CHECKLIST:\n' + checklistContext();
+var aiTurns = [];
+
+function askAI(question, targetEl){
+  var turns = [{role:'user', content: AI_INSTRUCTIONS}].concat(aiTurns, [{role:'user', content: question}]);
+  targetEl.textContent = 'Thinking...';
+  sampler(turns, {
+    modelTier: 'quick',
+    cache: false,
+    onText: function(u){ targetEl.textContent = u.text; }
+  }).then(function(res){
+    targetEl.textContent = res.text;
+    aiTurns.push({role:'user', content: question}, {role:'assistant', content: res.text});
+    if(aiTurns.length > 8) aiTurns = aiTurns.slice(-8);
+    Sound.termOk();
+    termLog.scrollTop = termLog.scrollHeight;
+  }).catch(function(e){
+    Sound.termError();
+    var code = e && e.code;
+    if(code === 'not_granted'){
+      targetEl.textContent = 'AI chat needs permission on this page — declined, so this session sticks to the regular commands. Type help.';
+      sampler = null;
+    } else if(code === 'rate_limited'){
+      targetEl.textContent = (e.text ? e.text + '\n' : '') + '[rate limited — try again in a moment]';
+    } else {
+      targetEl.textContent = (e && e.text) || ('AI chat hit a snag (' + (code || 'unknown') + '). Try rephrasing, or type help for fixed commands.');
+    }
+    termLog.scrollTop = termLog.scrollHeight;
+  });
+}
+
+var MATRIX_QUOTES = [
+  'There is no spoon.',
+  'I know kung fu.',
+  'Free your mind.',
+  'Welcome to the desert of the real.',
+  'What is real? How do you define real?',
+  'The Matrix has you.',
+  "Never send a human to do a machine's job.",
+  'Ignorance is bliss.',
+  'Unfortunately, no one can be told what the Matrix is.',
+  "It is the world that has been pulled over your eyes."
+];
+var lastMatrixQuote = -1;
+function nextMatrixQuote(){
+  if(MATRIX_QUOTES.length <= 1) return MATRIX_QUOTES[0];
+  var idx;
+  do { idx = Math.floor(Math.random()*MATRIX_QUOTES.length); } while(idx === lastMatrixQuote);
+  lastMatrixQuote = idx;
+  return MATRIX_QUOTES[idx];
+}
 var COMMANDS = {
   help: function(){
-    return 'Commands: help, whoami, rank, progress, achievements, matrix, neo, sudo, credits, clear, exit';
+    return 'Commands: help, whoami, rank, progress, achievements, matrix, neo, sudo, credits, clear, exit' + (sampler ? ' — or just ask a question.' : '');
   },
   whoami: function(){ return 'guest-operator &middot; clearance level: '+document.getElementById('stat-rank').textContent; },
   rank: function(){ var d=updateStats(); return document.getElementById('rank-name').textContent+' &mdash; '+d.pct+'% secured'; },
@@ -927,7 +1048,14 @@ var COMMANDS = {
   credits: function(){ showCredits(); return 'Opening credits panel&hellip;'; },
   clear: function(){ termLog.innerHTML=''; return null; },
   exit: function(){ termPanel.classList.remove('open'); return null; },
-  neo: function(){ foundEgg('neo'); document.body.classList.toggle('invert-mode'); return 'There is no spoon.'; },
+  neo: function(){
+    foundEgg('neo');
+    document.body.classList.toggle('invert-mode');
+    state.neoCalls = (state.neoCalls || 0) + 1;
+    saveState();
+    if(state.neoCalls === 1) return 'Follow the white rabbit.';
+    return nextMatrixQuote();
+  },
   matrix: function(){ foundEgg('matrix_cmd'); flashMatrixTakeover(); return 'Wake up...'; }
 };
 termInput.addEventListener('keydown', function(e){
@@ -941,6 +1069,12 @@ termInput.addEventListener('keydown', function(e){
     Sound.termOk();
     var out = COMMANDS[cmd]();
     if(out) termPrint('<div>'+out+'</div>');
+  } else if(sampler){
+    var replyEl = document.createElement('div');
+    replyEl.className = 'ai-reply';
+    termLog.appendChild(replyEl);
+    termLog.scrollTop = termLog.scrollHeight;
+    askAI(raw, replyEl);
   } else {
     Sound.termError();
     termPrint('<div style="color:var(--danger)">command not found: '+cmd.replace(/</g,'&lt;')+'</div>');
@@ -973,7 +1107,7 @@ document.getElementById('logo-btn').addEventListener('click', function(){
 });
 
 function showCredits(){
-  toast('ACCESS GRANTED', 'Built by Claude for Audra &middot; open-sourced on GitHub. Thanks for looking closely.');
+  toast('ACCESS GRANTED', 'Built by Claude for Astra &middot; open-sourced on GitHub. Thanks for looking closely.');
 }
 
 /* Hidden pixel bug easter egg */
@@ -1014,8 +1148,10 @@ document.getElementById('reset-btn').addEventListener('click', function(){ reset
 document.getElementById('reset-cancel').addEventListener('click', function(){ resetModal.classList.remove('open'); });
 document.getElementById('reset-confirm').addEventListener('click', function(){
   var eggs = state.eggs, ach = state.achievements, lv = state.localVisits, muted = state.muted;
+  var rabbitCatches = state.rabbitCatches, themeHue = state.themeHue, neoCalls = state.neoCalls;
   state = defaultState();
   state.eggs = eggs; state.achievements = ach; state.localVisits = lv; state.muted = muted; // keep meta + prefs
+  state.rabbitCatches = rabbitCatches; state.themeHue = themeHue; state.neoCalls = neoCalls;
   saveState();
   resetModal.classList.remove('open');
   renderTiers();
@@ -1041,8 +1177,66 @@ document.getElementById('sound-toggle').addEventListener('click', function(){
 renderSoundIcon();
 
 /* =========================================================
+   WHITE RABBIT
+========================================================= */
+(function whiteRabbit(){
+  var el = document.getElementById('white-rabbit');
+  var running = false;
+  var doneTimer = null;
+  function scheduleRun(){
+    var delay = 45000 + Math.random()*75000;
+    setTimeout(runOnce, delay);
+  }
+  function runOnce(){
+    if(document.hidden || document.body.classList.contains('reduced-motion-skip')){ scheduleRun(); return; }
+    running = true;
+    var dur = 6 + Math.random()*3.5;
+    el.style.transition = 'none';
+    el.style.left = '-60px';
+    el.classList.add('running');
+    void el.offsetWidth;
+    el.style.transition = 'left '+dur.toFixed(2)+'s linear';
+    el.style.left = (window.innerWidth + 60) + 'px';
+    doneTimer = setTimeout(function(){
+      el.classList.remove('running');
+      running = false;
+      scheduleRun();
+    }, dur*1000 + 80);
+  }
+  el.addEventListener('click', function(e){
+    if(!running) return;
+    e.stopPropagation();
+    var rect = el.getBoundingClientRect();
+    clearTimeout(doneTimer);
+    el.style.transition = 'none';
+    el.classList.remove('running');
+    running = false;
+    catchRabbit(rect.left + rect.width/2, rect.top + rect.height/2);
+    scheduleRun();
+  });
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduced) scheduleRun();
+})();
+
+function catchRabbit(x, y){
+  state.rabbitCatches = (state.rabbitCatches || 0) + 1;
+  var n = state.rabbitCatches, hue, label;
+  if(n === 1){ hue = 355; label = 'RED ALERT engaged.'; }
+  else if(n === 2){ hue = 322; label = 'ROSE PROTOCOL engaged.'; }
+  else { hue = NEON_HUES[Math.floor(Math.random()*NEON_HUES.length)]; label = 'Random neon shift engaged.'; }
+  state.themeHue = hue;
+  saveState();
+  applyTheme(hue);
+  foundEgg('white_rabbit');
+  Sound.egg();
+  burst(x || window.innerWidth/2, y || window.innerHeight - 20, 'hsl('+hue+',95%,72%)');
+  toast('YOU CAUGHT THE WHITE RABBIT', label + ' Catch it again for another shift.', 'egg');
+}
+
+/* =========================================================
    INIT
 ========================================================= */
+applyTheme(state.themeHue);
 renderTiers();
 updateStats();
 

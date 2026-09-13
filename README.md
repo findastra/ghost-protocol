@@ -1,6 +1,6 @@
 # Ghost Protocol — Personal Security Checklist
 
-A single-file, self-contained, interactive personal cybersecurity checklist. Matrix rain, a rank/threat-meter HUD, a hidden terminal, and a stack of easter eggs — built for Audra.
+A single-file, self-contained, interactive personal cybersecurity checklist. Matrix rain, a rank/threat-meter HUD, a hidden terminal, an AI chat assistant, and a stack of easter eggs — built for Astra.
 
 **[Live version](https://claude.ai/code/artifact/a5e30018-7271-48d9-a2a0-fb642da3651c)** *(hosted via Claude Artifacts)*
 
@@ -13,7 +13,15 @@ A single-file, self-contained, interactive personal cybersecurity checklist. Mat
 - **02 · DEEP FIELD** — DNS, tracker blocking, email aliases, social privacy, data brokers, encrypted messaging, firewalls
 - **03 · GHOST PROTOCOL** — key rotation, canary tokens, isolated browsing, self-hosted vaults, hardware SSH keys, VLANs, GPG, air-gapped backups
 
-Each item expands (click the **+**) to explain *why* it matters, not just what to do.
+Each item expands (click the **+**) to explain *why* it matters, not just what to do — and the specific tools/services it mentions (password managers, encryption tools, breach-check sites, etc.) are hyperlinked straight to their current official pages.
+
+## AI chat
+
+The bottom-right terminal (`>_`) doubles as a chat assistant — ask it anything about the checklist or security in general and it'll answer in-terminal. It runs on Claude's built-in Artifact chat capability (no API key, no separate backend, no meaningful token cost), so it only works on the live Artifact-hosted version, not a plain static copy of `index.html`. If it's unavailable in a given viewer's context, the terminal quietly falls back to its fixed command set.
+
+## Sound
+
+Small synthesized sound effects (checkbox ticks, achievement chimes, terminal blips) via the Web Audio API — no audio files. Muted by default is off; toggle with the speaker icon in the top HUD. The setting is remembered per browser.
 
 ## How state works
 
@@ -24,15 +32,17 @@ Each item expands (click the **+**) to explain *why* it matters, not just what t
 
 Told, not hidden — per request:
 
-1. **The mini terminal** (bottom-right `>_` button) — type `help` for the full command list (`whoami`, `rank`, `progress`, `achievements`, `matrix`, `neo`, `sudo`, `credits`, `clear`, `exit`).
+1. **The mini terminal** (bottom-right `>_` button) — type `help` for the full command list (`whoami`, `rank`, `progress`, `achievements`, `matrix`, `neo`, `sudo`, `credits`, `clear`, `exit`), or just ask it a question.
 2. **Konami code** — ↑ ↑ ↓ ↓ ← → ← → B A anywhere on the page triggers a full-screen matrix flash and an achievement.
 3. **Logo click** — click the `GHOST_PROTOCOL` logo top-left 5 times quickly to pop a hidden credits panel.
 4. **The hidden pixel** — a barely-visible dot in the footer next to the version number. Click it for a "bug bounty" achievement.
 5. **"Touch grass"** — the last item in tier 03 is only half a joke; checking it triggers its own reaction.
-6. **`matrix` / `neo` terminal commands** — one flashes a full-screen matrix takeover, the other flips an "invert" mode.
-7. **The browser console** — open devtools on the page for an ASCII-styled greeting most visitors will never see.
-8. **100% completion** — clearing all 41 items triggers a full-screen "DIGITAL GHOST / FULL CLEARANCE" celebration with a particle burst.
-9. **Achievements** — tracked quietly per browser: first check, each tier cleared, 3 easter eggs found ("EASTER HUNTER"), and full clearance.
+6. **`matrix` terminal command** — flashes a full-screen matrix takeover.
+7. **`neo` terminal command** — flips an "invert" mode. The first time you ever type it, it says "Follow the white rabbit." Every time after that, it replies with a different random line from *The Matrix*.
+8. **The white rabbit** — every so often, a small rabbit sprints across the bottom of the screen. Click it before it escapes: the first catch turns the whole site red, the second turns it pink, and every catch after that shifts it to a new random neon color. The color sticks around (saved per browser) until you catch it again.
+9. **The browser console** — open devtools on the page for an ASCII-styled greeting most visitors will never see.
+10. **100% completion** — clearing all 41 items triggers a full-screen "DIGITAL GHOST / FULL CLEARANCE" celebration with a particle burst.
+11. **Achievements** — tracked quietly per browser: first check, each tier cleared, 3 easter eggs found ("EASTER HUNTER"), and full clearance.
 
 ## Tech
 
@@ -45,4 +55,4 @@ Single HTML file. No build step, no dependencies beyond a Google Fonts import (O
 Just open `index.html` in a browser. No server required.
 
 ---
-Built by Claude, for Audra.
+Built by Claude, for Astra.

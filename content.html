@@ -150,6 +150,40 @@
   }
   .ai-hint b{color:var(--green-bright); font-weight:700;}
 
+  /* ---------- digital footprint panel ---------- */
+  .footprint-section{margin-top:40px;}
+  .footprint-head{margin-bottom:20px;}
+  .footprint-eyebrow{font-size:11px; letter-spacing:.14em; color:var(--text-dim); text-transform:uppercase;}
+  .footprint-title{
+    font-family:var(--display); font-size:clamp(20px,3.4vw,30px); letter-spacing:.02em;
+    margin:6px 0 10px; color:var(--white);
+  }
+  .footprint-sub{font-size:12.5px; line-height:1.6; color:var(--text-dim); max-width:760px;}
+  .footprint-group{margin-top:22px;}
+  .footprint-group-label{
+    font-size:11px; letter-spacing:.14em; color:var(--text-dim); text-transform:uppercase;
+    margin-bottom:10px; display:flex; align-items:center; gap:8px;
+  }
+  .footprint-group-label::after{content:''; flex:1; height:1px; background:var(--border);}
+  .footprint-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:10px;
+  }
+  .fp-tile{
+    border:1px solid var(--border); background:var(--surface); border-radius:var(--radius);
+    padding:11px 13px; min-width:0;
+  }
+  .fp-tile-label{font-size:10.5px; letter-spacing:.06em; color:var(--text-dim); text-transform:uppercase; margin-bottom:5px;}
+  .fp-tile-value{
+    font-size:13px; color:var(--text); word-break:break-word; line-height:1.35;
+    font-weight:600;
+  }
+  .fp-tile-note{font-size:10.5px; color:var(--text-dim); margin-top:5px; line-height:1.4;}
+  .fp-tile[data-flag="warn"]{border-color:rgba(255,207,92,.4);}
+  .fp-tile[data-flag="warn"] .fp-tile-value{color:var(--amber);}
+  .fp-tile[data-flag="good"] .fp-tile-value{color:var(--green-bright);}
+  .fp-tile[data-flag="danger"]{border-color:rgba(255,84,104,.4);}
+  .fp-tile[data-flag="danger"] .fp-tile-value{color:var(--danger);}
+
   /* ---------- tiers ---------- */
   .tier{
     border:1px solid var(--border); background:var(--surface);
@@ -452,6 +486,27 @@
   </div>
 
   <div id="tiers"></div>
+
+  <div class="footprint-section" id="footprint-section">
+    <div class="footprint-head">
+      <div class="footprint-eyebrow">// live readout</div>
+      <h2 class="footprint-title">What This Page Can See About You</h2>
+      <p class="footprint-sub">Every value below is read live, right now, by ordinary website code &mdash; no login, no special permissions, nothing exotic. This is exactly the kind of passive exposure the checklist above is about closing off. Nothing here is sent to us or stored anywhere; the location lookup asks a third-party IP-geolocation service directly from your browser, the same quiet way most ad and analytics scripts do it.</p>
+    </div>
+
+    <div class="footprint-group">
+      <div class="footprint-group-label">Network &amp; location</div>
+      <div class="footprint-grid" id="fp-network"></div>
+    </div>
+    <div class="footprint-group">
+      <div class="footprint-group-label">Device &amp; browser</div>
+      <div class="footprint-grid" id="fp-device"></div>
+    </div>
+    <div class="footprint-group">
+      <div class="footprint-group-label">Privacy signals</div>
+      <div class="footprint-grid" id="fp-privacy"></div>
+    </div>
+  </div>
 
   <footer>
     <div class="foot-row">
@@ -1824,8 +1879,8 @@ renderSoundIcon();
     curEdge = edgeName;
     edgeCfg = { axis:cfg.axis, forward:forward, span:span };
     durationMs = (6 + Math.random()*3.5) * 1000 / SPEEDUP;
-    hopMs = (1300 + Math.random()*350) / SPEEDUP; // still deliberate, just 30% quicker
-    hopHeight = 16 + Math.random()*8;
+    hopMs = 480 + Math.random()*160; // quick, choppy 8-bit-style frame changes; shorter hops as a result
+    hopHeight = 12 + Math.random()*6;
     tickMs = hopMs / FRAMES.length;
     totalTicks = Math.max(FRAMES.length, Math.round(durationMs / tickMs));
     stepPx = span / totalTicks;
@@ -1839,9 +1894,14 @@ renderSoundIcon();
     rotor.style.transform = 'rotate('+cfg.rotate+'deg) scaleX('+faceFlip+')';
     el.classList.add('running');
     applyFrameLook('crouch', curEdge);
-    startTime = performance.now();
-    lastTick = startTime;
-    rafId = requestAnimationFrame(step);
+    // Hold still for a beat before actually setting off — a little pause
+    // to notice it's there, rather than immediately darting away.
+    setTimeout(function(){
+      if(!running) return; // caught during the pause
+      startTime = performance.now();
+      lastTick = startTime;
+      rafId = requestAnimationFrame(step);
+    }, 3000);
   }
 
   // Point-to-point hop, used for sneaking up to a title letter and dashing
@@ -1918,8 +1978,8 @@ renderSoundIcon();
     var fromLeft = targetX < window.innerWidth/2;
     var startX = fromLeft ? -70 : window.innerWidth+70;
     var startY = window.innerHeight + 70;
-    hopMs = (1300 + Math.random()*300) / SPEEDUP;
-    hopHeight = 16 + Math.random()*6;
+    hopMs = 480 + Math.random()*150;
+    hopHeight = 12 + Math.random()*5;
     el.style.left = startX+'px';
     el.style.top = startY+'px';
     rotor.style.transform = 'rotate(0deg) scaleX('+(fromLeft?1:-1)+')';
@@ -2014,6 +2074,171 @@ function catchRabbit(x, y){
   span.innerHTML = '';
   span.appendChild(frag);
   window.__titleHoleLetters = holes;
+})();
+
+/* =========================================================
+   DIGITAL FOOTPRINT PANEL
+   A live readout of ordinary things a webpage can detect about a
+   visitor with no special permissions — framed as privacy education,
+   not a pass/fail audit (most checklist items above genuinely can't
+   be verified by a page, e.g. "do you use a password manager").
+========================================================= */
+(function digitalFootprint(){
+  var groups = { network: document.getElementById('fp-network'), device: document.getElementById('fp-device'), privacy: document.getElementById('fp-privacy') };
+  if(!groups.network || !groups.device || !groups.privacy) return;
+
+  function tile(group, id, label, value, flag, note){
+    var el = document.createElement('div');
+    el.className = 'fp-tile';
+    el.id = 'fp-'+id;
+    if(flag) el.setAttribute('data-flag', flag);
+    el.innerHTML =
+      '<div class="fp-tile-label">'+label+'</div>'+
+      '<div class="fp-tile-value" id="fp-'+id+'-value">'+value+'</div>'+
+      (note ? '<div class="fp-tile-note">'+note+'</div>' : '');
+    groups[group].appendChild(el);
+    return el;
+  }
+
+  function setTile(id, value, flag, note){
+    var el = document.getElementById('fp-'+id);
+    if(!el) return;
+    var valEl = document.getElementById('fp-'+id+'-value');
+    if(valEl) valEl.textContent = value;
+    if(flag) el.setAttribute('data-flag', flag);
+    if(note !== undefined){
+      var noteEl = el.querySelector('.fp-tile-note');
+      if(!note){ if(noteEl) noteEl.remove(); }
+      else if(noteEl){ noteEl.textContent = note; }
+      else { var n = document.createElement('div'); n.className = 'fp-tile-note'; n.textContent = note; el.appendChild(n); }
+    }
+  }
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  /* ---------- network & location (mostly async, needs IP lookup) ---------- */
+  tile('network', 'ip', 'Public IP address', 'Looking up&hellip;');
+  tile('network', 'city', 'Approx. city', 'Looking up&hellip;');
+  tile('network', 'region', 'Region / state', 'Looking up&hellip;');
+  tile('network', 'country', 'Country', 'Looking up&hellip;');
+  tile('network', 'isp', 'Network / ISP', 'Looking up&hellip;');
+  tile('network', 'iptz', 'Timezone (from IP)', 'Looking up&hellip;');
+  var browserTz = 'unavailable';
+  try { browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'unavailable'; } catch(e){}
+  tile('network', 'browsertz', 'Timezone (from browser)', esc(browserTz));
+  tile('network', 'tzmatch', 'Location / clock match', 'Checking&hellip;');
+  var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  tile('network', 'conntype', 'Connection type', conn && conn.effectiveType ? esc(conn.effectiveType.toUpperCase()) : 'Not exposed by this browser');
+  tile('network', 'online', 'Online status', navigator.onLine ? 'Online' : 'Offline', navigator.onLine ? 'good' : 'warn');
+
+  fetch('https://ipapi.co/json/').then(function(r){ return r.json(); }).then(function(data){
+    if(data.error) throw new Error('lookup error');
+    setTile('ip', esc(data.ip || 'unavailable'));
+    setTile('city', esc(data.city || 'unavailable'));
+    setTile('region', esc(data.region || 'unavailable'));
+    setTile('country', esc(data.country_name || 'unavailable'));
+    setTile('isp', esc(data.org || 'unavailable'));
+    setTile('iptz', esc(data.timezone || 'unavailable'));
+    var mismatch = data.timezone && browserTz !== 'unavailable' && data.timezone !== browserTz;
+    if(mismatch){
+      setTile('tzmatch', 'Mismatch', 'warn', 'Your IP’s timezone and your browser’s clock don’t line up — a classic (not certain) sign of a VPN or proxy.');
+    } else {
+      setTile('tzmatch', 'Match', null, 'Your IP location and browser clock agree — no VPN/proxy signal from this check.');
+    }
+  }).catch(function(){
+    ['ip','city','region','country','isp','iptz'].forEach(function(id){ setTile(id, 'Blocked or unreachable'); });
+    setTile('tzmatch', 'Unknown', 'good', 'The lookup didn’t go through — if you’re running a privacy tool that blocks third-party requests, that’s exactly what it should look like.');
+  });
+
+  /* ---------- device & browser (all synchronous) ---------- */
+  function browserInfo(){
+    var ua = navigator.userAgent;
+    if(/Edg\//.test(ua)) return 'Microsoft Edge';
+    if(/OPR\//.test(ua)) return 'Opera';
+    if(/Chrome\//.test(ua) && !/Chromium/.test(ua)) return 'Chrome';
+    if(/Firefox\//.test(ua)) return 'Firefox';
+    if(/Safari\//.test(ua) && /Version\//.test(ua)) return 'Safari';
+    return 'Unknown / other';
+  }
+  function osInfo(){
+    var ua = navigator.userAgent;
+    if(/Windows NT 10/.test(ua)) return 'Windows 10/11';
+    if(/Windows/.test(ua)) return 'Windows';
+    if(/Mac OS X/.test(ua)) return 'macOS';
+    if(/Android/.test(ua)) return 'Android';
+    if(/iPhone|iPad|iPod/.test(ua)) return 'iOS';
+    if(/Linux/.test(ua)) return 'Linux';
+    return 'Unknown';
+  }
+  function deviceType(){
+    var ua = navigator.userAgent;
+    if(/iPad|Tablet/i.test(ua)) return 'Tablet';
+    if(/Mobi|Android/i.test(ua)) return 'Mobile';
+    return 'Desktop / laptop';
+  }
+  function gpuInfo(){
+    try {
+      var canvas = document.createElement('canvas');
+      var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if(!gl) return 'WebGL not available';
+      var dbg = gl.getExtension('WEBGL_debug_renderer_info');
+      if(!dbg) return 'Blocked by browser (fingerprint protection)';
+      return gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || 'Unavailable';
+    } catch(e){ return 'Unavailable'; }
+  }
+  var touch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  tile('device', 'browser', 'Browser', esc(browserInfo()));
+  tile('device', 'os', 'Operating system', esc(osInfo()));
+  tile('device', 'devicetype', 'Device type', esc(deviceType()));
+  tile('device', 'screen', 'Screen resolution', screen.width+' × '+screen.height);
+  tile('device', 'viewport', 'Viewport size', window.innerWidth+' × '+window.innerHeight);
+  tile('device', 'pixelratio', 'Pixel ratio', (window.devicePixelRatio || 1)+'x');
+  tile('device', 'colordepth', 'Color depth', (screen.colorDepth || 'unknown')+'-bit');
+  tile('device', 'cpu', 'CPU cores', navigator.hardwareConcurrency ? String(navigator.hardwareConcurrency) : 'Not exposed by this browser');
+  tile('device', 'memory', 'Device memory (approx.)', navigator.deviceMemory ? navigator.deviceMemory+' GB' : 'Not exposed by this browser');
+  tile('device', 'gpu', 'Graphics renderer', esc(gpuInfo()));
+  tile('device', 'touch', 'Touch input', touch ? 'Supported' : 'Not detected');
+
+  if(navigator.getBattery){
+    tile('device', 'battery', 'Battery status', 'Checking&hellip;');
+    navigator.getBattery().then(function(b){
+      setTile('battery', Math.round(b.level*100)+'%'+(b.charging ? ' (charging)' : ''));
+    }).catch(function(){ setTile('battery', 'Unavailable'); });
+  } else {
+    tile('device', 'battery', 'Battery status', 'Not exposed by this browser');
+  }
+
+  /* ---------- privacy signals ---------- */
+  var darkPref = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var dnt = navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' || window.doNotTrack === '1';
+  var storageOk = false;
+  try { localStorage.setItem('__fp_test__','1'); localStorage.removeItem('__fp_test__'); storageOk = true; } catch(e){}
+
+  tile('privacy', 'lang', 'Language(s)', esc((navigator.languages && navigator.languages.join(', ')) || navigator.language || 'unknown'));
+  tile('privacy', 'colorscheme', 'Color scheme preference', darkPref ? 'Dark mode' : 'Light mode');
+  tile('privacy', 'reducedmotion', 'Reduced motion preference', reducedMotion ? 'Requested' : 'Not requested');
+  tile('privacy', 'dnt', 'Do Not Track', dnt ? 'Enabled' : 'Not enabled', dnt ? 'good' : null, dnt ? null : 'Most sites ignore this signal even when it’s on — it’s not a real protection.');
+  tile('privacy', 'cookies', 'Cookies enabled', navigator.cookieEnabled ? 'Yes' : 'No', navigator.cookieEnabled ? null : 'good');
+  tile('privacy', 'localstorage', 'Local storage available', storageOk ? 'Yes' : 'Blocked', storageOk ? null : 'good');
+  tile('privacy', 'https', 'Connection security', location.protocol === 'https:' ? 'HTTPS (encrypted)' : 'HTTP (not encrypted)', location.protocol === 'https:' ? 'good' : 'danger');
+  tile('privacy', 'referrer', 'Referrer sent to this page', esc(document.referrer || 'None (direct visit, or blocked by your browser)'), document.referrer ? null : 'good');
+  tile('privacy', 'adblock', 'Ad/tracker blocker', 'Checking&hellip;');
+
+  // Classic bait-element technique: many block-lists hide elements whose
+  // class names look like ad markup. If ours gets hidden, something is
+  // filtering the page.
+  var bait = document.createElement('div');
+  bait.className = 'ad-banner ads ad-placement adsbox';
+  bait.style.cssText = 'position:absolute; left:-9999px; top:-9999px; width:1px; height:1px;';
+  document.body.appendChild(bait);
+  setTimeout(function(){
+    var blocked = bait.offsetParent === null || bait.offsetHeight === 0 || getComputedStyle(bait).display === 'none';
+    setTile('adblock', blocked ? 'Detected' : 'Not detected', blocked ? 'good' : null,
+      blocked ? 'Something on your device is filtering ad-shaped content — that also blocks a lot of tracking.' : 'This check isn’t definitive — some blockers work differently and won’t show up here.');
+    bait.remove();
+  }, 120);
 })();
 
 /* =========================================================

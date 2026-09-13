@@ -13,17 +13,17 @@ A single-file, self-contained, interactive personal cybersecurity checklist. Mat
 - **02 · DEEP FIELD** — DNS, tracker blocking, email aliases, social privacy, data brokers, encrypted messaging, firewalls
 - **03 · GHOST PROTOCOL** — key rotation, canary tokens, isolated browsing, self-hosted vaults, hardware SSH keys, VLANs, GPG, air-gapped backups
 
-Each item expands (click the **+**) to explain *why* it matters, not just what to do — and the specific tools/services it mentions (password managers, encryption tools, breach-check sites, etc.) are hyperlinked straight to their current official pages.
+Each item has a small chevron dot — click it to reveal *why it matters* and how to do it (nothing shows until you click it). Specific tools/services mentioned there (password managers, encryption tools, breach-check sites, etc.) are hyperlinked straight to their current official pages.
 
 ## Customize each tier
 
-Every tier can be reshaped to fit your actual life:
+Every tier can be reshaped to fit your actual life. Click **"Customize this list"** right under a tier's header to reveal:
 
-- **×** on any item (built-in or one you added yourself) hides it from view. Nothing is ever deleted — it "remains" in your saved data, and you can bring it back from the "N hidden — show" link right at the top of that tier's dropdown.
-- **+ Add item** lets you add your own item to a tier — title, optional one-line note, optional detail — for anything specific to you (a particular account, device, or habit) that isn't already covered.
-- **✦ AI suggest** asks the AI chat to propose several new, non-duplicate items for that tier — often broken out per-account (e.g. one item each for your email, bank, work SSO, socials) rather than one vague catch-all — and lets you pick which ones to actually add. Like the terminal chat, this needs the live AI-connected version of the page.
+- **+ Add item** — add your own item to that tier: title, optional one-line note, optional detail — for anything specific to you (a particular account, device, or habit) that isn't already covered.
+- **✦ AI suggest** — asks the AI chat to propose several new, non-duplicate items for that tier — often broken out per-account (e.g. one item each for your email, bank, work SSO, socials) — and lets you pick which ones to actually add. Needs the live AI-connected version of the page.
+- **N hidden** — restores anything you've hidden.
 
-All three controls live right under each tier's header, as soon as you open it.
+**×** on any item (built-in or one you added yourself) hides it from view — nothing is ever deleted, it "remains" in your saved data and comes back from the hidden list above. Each item's expanded detail also has its own **"+ add a related item"** link, so you can add something specific to that exact item (like a particular account) without hunting for the tier-wide controls.
 
 Hiding or adding items changes what counts toward your percentage and rank — hide something that doesn't apply to you and it stops being held against your score; add something and it becomes part of your checklist, same as anything built in.
 
@@ -50,7 +50,7 @@ Told, not hidden — per request:
 4. **The hidden pixel** — a barely-visible dot in the footer next to the version number. Click it for a "bug bounty" achievement.
 5. **"Touch grass"** — the last item in tier 03 is only half a joke; checking it triggers its own reaction.
 6. **`matrix` terminal command** — flashes a full-screen matrix takeover.
-7. **`neo` terminal command** — flips an "invert" mode. The first time you ever type it, it says "Follow the white rabbit." Every time after that, it replies with a different random line from *The Matrix*.
+7. **`neo` terminal command** — flips an "invert" mode. The first time you ever type it, it says "Follow the white rabbit." Every time after that, it replies with a different random line from *The Matrix* or *Alice in Wonderland*.
 8. **The white rabbit** — every so often, a small rabbit sprints across the bottom of the screen. Click it before it escapes: the first catch turns the whole site red, the second turns it pink, and every catch after that shifts it to a new random neon color. The color sticks around (saved per browser) until you catch it again.
 9. **The browser console** — open devtools on the page for an ASCII-styled greeting most visitors will never see.
 10. **100% completion** — clearing all 41 items triggers a full-screen "DIGITAL GHOST / FULL CLEARANCE" celebration with a particle burst.

@@ -206,17 +206,18 @@
   .item.done .item-title{color:var(--text-dim); text-decoration:line-through; text-decoration-color:var(--green-dim);}
   .item-blurb{font-size:12.5px; color:var(--text-dim); margin-top:2px;}
   .item-info{
-    flex:none; width:20px; height:20px; border-radius:50%; border:1px solid var(--border);
-    background:none; color:var(--text-dim); cursor:pointer; font-size:11px; font-family:var(--display);
-    display:flex; align-items:center; justify-content:center; transition:transform .2s ease;
+    flex:none; width:22px; height:22px; border-radius:50%; border:1px solid var(--border);
+    background:none; color:var(--text-dim); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:transform .2s ease, color .15s ease, border-color .15s ease;
   }
+  .item-info svg{width:12px; height:12px;}
   .item-info:hover{color:var(--green-bright); border-color:var(--green-dim);}
-  .item.expanded .item-info{transform:rotate(45deg); color:var(--green-bright);}
+  .item.expanded .item-info{transform:rotate(90deg); color:var(--green-bright); border-color:var(--green-dim);}
   .item-detail{
-    display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s ease;
-    font-size:12.5px; color:var(--text); padding-left:0;
+    display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s ease, opacity .2s ease;
+    font-size:12.5px; color:var(--text); padding-left:0; overflow:hidden; opacity:0;
   }
-  .item.expanded .item-detail{grid-template-rows:1fr;}
+  .item.expanded .item-detail{grid-template-rows:1fr; opacity:1;}
   .item-detail-inner{padding:8px 12px; margin-top:6px; border-left:2px solid var(--green-dim); background:rgba(var(--green-rgb),.04); overflow:hidden; min-height:0;}
   .custom-tag{font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--cyan); border:1px solid var(--cyan); border-radius:99px; padding:1px 6px; margin-left:6px; vertical-align:middle;}
   .item-remove{
@@ -225,7 +226,27 @@
     display:flex; align-items:center; justify-content:center; opacity:.55; transition:opacity .15s ease, color .15s ease, border-color .15s ease;
   }
   .item-remove:hover{opacity:1; color:var(--danger); border-color:var(--danger);}
-  .tier-toolbar{display:flex; flex-wrap:wrap; gap:8px; padding:10px 6px 4px;}
+  .tier-customize-toggle{
+    display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+    background:none; border:1px dashed var(--border); border-radius:6px; color:var(--text-dim);
+    font-family:var(--mono); font-size:11.5px; padding:8px 10px; margin:8px 6px; cursor:pointer;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .tier-customize-toggle:hover{border-color:var(--green-dim); color:var(--green-bright);}
+  .tier-customize-chevron{width:11px; height:11px; transition:transform .2s ease; flex:none;}
+  .tier-customize-toggle[aria-expanded="true"] .tier-customize-chevron{transform:rotate(90deg);}
+  .tier-customize-panel{
+    display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s ease, opacity .2s ease;
+    opacity:0; overflow:hidden;
+  }
+  .tier-customize-panel.open{grid-template-rows:1fr; opacity:1;}
+  .tier-customize-panel > div{overflow:hidden; min-height:0;}
+  .item-add-related{
+    display:inline-block; margin-top:8px; background:none; border:1px dashed var(--border-soft); color:var(--text-dim);
+    border-radius:6px; padding:5px 10px; font-size:10.5px; cursor:pointer; font-family:var(--mono);
+  }
+  .item-add-related:hover{border-color:var(--green-dim); color:var(--green-bright);}
+  .tier-toolbar{display:flex; flex-wrap:wrap; gap:8px; padding:0 6px 4px;}
   .tier-tool-btn{
     background:none; border:1px dashed var(--border); color:var(--text-dim); border-radius:6px;
     padding:6px 11px; font-size:11px; cursor:pointer; font-family:var(--mono); letter-spacing:.02em;
@@ -556,7 +577,7 @@ var STORE_KEY = 'ghost_protocol_state_v1';
 var state = loadState();
 
 function defaultState(){
-  return { checked:{}, expanded:{}, eggs:[], achievements:[], muted:false, localVisits:0, celebrated:false, rabbitCatches:0, themeHue:null, neoCalls:0, hidden:{}, customItems:{}, hiddenListOpen:{} };
+  return { checked:{}, expanded:{}, eggs:[], achievements:[], muted:false, localVisits:0, celebrated:false, rabbitCatches:0, themeHue:null, neoCalls:0, hidden:{}, customItems:{}, hiddenListOpen:{}, tierToolsOpen:{} };
 }
 function loadState(){
   try{
@@ -672,27 +693,33 @@ function renderTiers(){
     html += '  </button>';
     html += '  <div class="tier-progress"><i style="width:'+Math.round(doneCount/Math.max(1,items.length)*100)+'%"></i></div>';
     html += '  <div class="tier-body"><div class="tier-body-inner">';
-    html += '    <div class="tier-toolbar">';
-    html += '      <button class="tier-tool-btn" data-add-tier="'+tier.id+'">+ Add item</button>';
-    html += '      <button class="tier-tool-btn suggest" data-suggest-tier="'+tier.id+'">&#10022; AI suggest</button>';
+    html += '    <button class="tier-customize-toggle" data-customize-tier="'+tier.id+'" aria-expanded="'+(!!state.tierToolsOpen[tier.id])+'">';
+    html += '      <svg class="tier-customize-chevron" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    html += '      <span>Customize this list'+(hiddenItems.length?' &middot; '+hiddenItems.length+' hidden':'')+'</span>';
+    html += '    </button>';
+    html += '    <div class="tier-customize-panel'+(state.tierToolsOpen[tier.id]?' open':'')+'" id="customize-panel-'+tier.id+'"><div>';
+    html += '      <div class="tier-toolbar">';
+    html += '        <button class="tier-tool-btn" data-add-tier="'+tier.id+'">+ Add item</button>';
+    html += '        <button class="tier-tool-btn suggest" data-suggest-tier="'+tier.id+'">&#10022; AI suggest</button>';
     if(hiddenItems.length > 0){
-      html += '      <button class="tier-tool-btn ghost" data-hidden-tier="'+tier.id+'">'+hiddenItems.length+' hidden &mdash; '+(state.hiddenListOpen[tier.id]?'hide':'show')+'</button>';
+      html += '        <button class="tier-tool-btn ghost" data-hidden-tier="'+tier.id+'">'+hiddenItems.length+' hidden &mdash; '+(state.hiddenListOpen[tier.id]?'hide':'show')+'</button>';
     }
-    html += '    </div>';
-    html += '    <div class="tier-add-form" id="add-form-'+tier.id+'" style="display:none;">';
-    html += '      <input type="text" class="add-input" id="add-title-'+tier.id+'" placeholder="Item title (e.g. Enable MFA on my crypto exchange)" maxlength="120">';
-    html += '      <input type="text" class="add-input" id="add-blurb-'+tier.id+'" placeholder="Short one-line note (optional)" maxlength="160">';
-    html += '      <textarea class="add-input" id="add-detail-'+tier.id+'" placeholder="Why it matters / how to do it (optional)" rows="2" maxlength="600"></textarea>';
-    html += '      <div class="tier-add-actions"><button class="btn btn-ghost" data-cancel-add="'+tier.id+'">Cancel</button><button class="btn btn-add" data-submit-add="'+tier.id+'">Add to checklist</button></div>';
-    html += '    </div>';
+    html += '      </div>';
+    html += '      <div class="tier-add-form" id="add-form-'+tier.id+'" style="display:none;">';
+    html += '        <input type="text" class="add-input" id="add-title-'+tier.id+'" placeholder="Item title (e.g. Enable MFA on my crypto exchange)" maxlength="120">';
+    html += '        <input type="text" class="add-input" id="add-blurb-'+tier.id+'" placeholder="Short one-line note (optional)" maxlength="160">';
+    html += '        <textarea class="add-input" id="add-detail-'+tier.id+'" placeholder="Why it matters / how to do it (optional)" rows="2" maxlength="600"></textarea>';
+    html += '        <div class="tier-add-actions"><button class="btn btn-ghost" data-cancel-add="'+tier.id+'">Cancel</button><button class="btn btn-add" data-submit-add="'+tier.id+'">Add to checklist</button></div>';
+    html += '      </div>';
     if(hiddenItems.length > 0 && state.hiddenListOpen[tier.id]){
-      html += '    <div class="hidden-list">';
+      html += '      <div class="hidden-list">';
       hiddenItems.forEach(function(it){
         html += '<div class="hidden-row"><span>'+it.t+'</span><button class="restore-btn" data-restore="'+it.id+'">+ restore</button></div>';
       });
-      html += '    </div>';
+      html += '      </div>';
     }
-    html += '    <div class="suggest-panel" id="suggest-panel-'+tier.id+'" style="display:none;"></div>';
+    html += '      <div class="suggest-panel" id="suggest-panel-'+tier.id+'" style="display:none;"></div>';
+    html += '    </div></div>';
     items.forEach(function(it){
       var checked = !!state.checked[it.id];
       var expanded = !!state.expanded[it.id];
@@ -702,10 +729,10 @@ function renderTiers(){
       html += '    <div class="item-main">';
       html += '      <div class="item-head" data-toggle="'+it.id+'">';
       html += '        <div style="flex:1;"><div class="item-title">'+it.t+(it.custom?' <span class="custom-tag">custom</span>':'')+'</div>'+(it.b?'<div class="item-blurb">'+it.b+'</div>':'')+'</div>';
-      if(it.d) html += '        <button class="item-info" data-toggle="'+it.id+'" aria-label="More detail">+</button>';
+      if(it.d) html += '        <button class="item-info" data-toggle="'+it.id+'" aria-label="Show more detail" title="Show more detail"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
       html += '        <button class="item-remove" data-remove="'+it.id+'" data-tier="'+tier.id+'" aria-label="Hide this item" title="Hide this item — it stays in your data and you can restore it from &quot;hidden&quot; above">&#10005;</button>';
       html += '      </div>';
-      if(it.d) html += '      <div class="item-detail"><div class="item-detail-inner">'+it.d+'</div></div>';
+      if(it.d) html += '      <div class="item-detail"><div class="item-detail-inner">'+it.d+'<button class="item-add-related" data-add-related="'+tier.id+'" data-related-title="'+it.t.replace(/"/g,'&quot;')+'">+ add a related item</button></div></div>';
       html += '    </div>';
       html += '  </div>';
       html += '</div>';
@@ -781,6 +808,25 @@ function renderTiers(){
       reflowOpenTier(tid);
     });
   });
+  // wire the "customize this list" reveal per tier
+  Array.prototype.forEach.call(document.querySelectorAll('[data-customize-tier]'), function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      var tid = el.getAttribute('data-customize-tier');
+      state.tierToolsOpen[tid] = !state.tierToolsOpen[tid];
+      saveState();
+      renderTiers();
+    });
+  });
+  // wire "+ add a related item" links inside each item's detail panel
+  Array.prototype.forEach.call(document.querySelectorAll('[data-add-related]'), function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      var tid = el.getAttribute('data-add-related');
+      var relatedTitle = el.getAttribute('data-related-title');
+      openAddFormFor(tid, relatedTitle);
+    });
+  });
   // wire add-item forms
   Array.prototype.forEach.call(document.querySelectorAll('[data-add-tier]'), function(el){
     el.addEventListener('click', function(e){
@@ -825,6 +871,18 @@ function reflowOpenTier(tid){
 /* =========================================================
    CUSTOM ITEMS + AI SUGGESTIONS
 ========================================================= */
+function openAddFormFor(tid, relatedTitle){
+  state.tierToolsOpen[tid] = true;
+  saveState();
+  renderTiers();
+  var form = document.getElementById('add-form-'+tid);
+  if(!form) return;
+  form.style.display = 'block';
+  var titleInput = document.getElementById('add-title-'+tid);
+  if(relatedTitle && titleInput) titleInput.placeholder = 'Related to "'+relatedTitle+'" (e.g. a specific account)';
+  form.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(function(){ if(titleInput) titleInput.focus(); }, 300);
+}
 function addCustomItem(tid){
   var titleEl = document.getElementById('add-title-'+tid);
   var blurbEl = document.getElementById('add-blurb-'+tid);
@@ -1306,6 +1364,9 @@ function askAI(question, targetEl){
   });
 }
 
+// Matrix quotes, mixed with Alice in Wonderland (the book the Matrix itself
+// borrows "the white rabbit" and "the rabbit hole" from) — both feel at
+// home behind the same white rabbit easter egg.
 var MATRIX_QUOTES = [
   'There is no spoon.',
   'I know kung fu.',
@@ -1316,7 +1377,25 @@ var MATRIX_QUOTES = [
   "Never send a human to do a machine's job.",
   'Ignorance is bliss.',
   'Unfortunately, no one can be told what the Matrix is.',
-  "It is the world that has been pulled over your eyes."
+  'It is the world that has been pulled over your eyes.',
+  'What if you were unable to wake from that dream?',
+  'You take the blue pill, the story ends. You take the red pill, you stay in Wonderland.',
+  'There is a difference between knowing the path and walking the path.',
+  'Everything that has a beginning has an end.',
+  "I'm trying to free your mind, Neo.",
+  'Do not try and bend the spoon. That is impossible. Instead, only try to realize the truth.',
+  'Welcome to the real world.',
+  'Choice is an illusion created between those with power and those without.',
+  'Curiouser and curiouser!',
+  "We're all mad here.",
+  'Off with their heads!',
+  "Why, sometimes I've believed as many as six impossible things before breakfast.",
+  "Who in the world am I? Ah, that's the great puzzle.",
+  "It's no use going back to yesterday, because I was a different person then.",
+  'Would you tell me, please, which way I ought to go from here?',
+  "How do you know I'm mad? You must be, or you wouldn't have come here.",
+  'The hurrier I go, the behinder I get.',
+  'Why is a raven like a writing desk?'
 ];
 var lastMatrixQuote = -1;
 function nextMatrixQuote(){
@@ -1439,11 +1518,11 @@ document.getElementById('reset-cancel').addEventListener('click', function(){ re
 document.getElementById('reset-confirm').addEventListener('click', function(){
   var eggs = state.eggs, ach = state.achievements, lv = state.localVisits, muted = state.muted;
   var neoCalls = state.neoCalls;
-  var hidden = state.hidden, customItems = state.customItems;
+  var hidden = state.hidden, customItems = state.customItems, tierToolsOpen = state.tierToolsOpen;
   state = defaultState();
   state.eggs = eggs; state.achievements = ach; state.localVisits = lv; state.muted = muted; // keep meta + prefs
   state.neoCalls = neoCalls;
-  state.hidden = hidden; state.customItems = customItems; // keep list customization — this wipe is just checked/expanded
+  state.hidden = hidden; state.customItems = customItems; state.tierToolsOpen = tierToolsOpen; // keep list customization — this wipe is just checked/expanded
   // themeHue/rabbitCatches reset to defaults (null/0) — a wipe restarts the theme back to green too
   saveState();
   applyTheme(null);

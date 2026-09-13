@@ -249,6 +249,22 @@
   .tier.open .tier-chevron{transform:rotate(90deg); color:var(--green-bright);}
   .tier-progress{height:3px; background:var(--surface-2);}
   .tier-progress i{display:block; height:100%; background:var(--tier-accent, var(--green)); width:0%; transition:width .5s ease;}
+  /* ---------- rabbit-catch theme extras: gradients + patterns ---------- */
+  body.theme-gradient .tier-progress i, body.theme-stripes .tier-progress i, body.theme-dots .tier-progress i{background:var(--theme-grad);}
+  body.theme-gradient .hud-progress-fill, body.theme-stripes .hud-progress-fill, body.theme-dots .hud-progress-fill{background:var(--theme-grad);}
+  body.theme-gradient .threat-fill, body.theme-stripes .threat-fill, body.theme-dots .threat-fill{background:var(--theme-grad) !important;}
+  body.theme-gradient .rank-badge, body.theme-stripes .rank-badge, body.theme-dots .rank-badge{background:var(--theme-grad); border-color:transparent;}
+  body.theme-gradient .rank-badge *, body.theme-stripes .rank-badge *, body.theme-dots .rank-badge *{color:#0a130e !important;}
+  body.theme-stripes::before, body.theme-dots::before{
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:1; mix-blend-mode:screen;
+  }
+  body.theme-stripes::before{
+    background-image:repeating-linear-gradient(45deg, hsla(var(--theme-hue),90%,62%,.05) 0 14px, hsla(var(--theme-hue2),90%,62%,.05) 14px 28px);
+  }
+  body.theme-dots::before{
+    background-image:radial-gradient(hsla(var(--theme-hue2),95%,70%,.14) 1.6px, transparent 1.6px);
+    background-size:18px 18px;
+  }
   .tier-body{
     display:grid; grid-template-rows:0fr; transition:grid-template-rows .35s ease;
     border-top:1px solid var(--border-soft);
@@ -1085,7 +1101,7 @@ var STORE_KEY = 'ghost_protocol_state_v1';
 var state = loadState();
 
 function defaultState(){
-  return { checked:{}, expanded:{}, eggs:[], achievements:[], muted:false, localVisits:0, celebrated:false, rabbitCatches:0, themeHue:null, neoCalls:0, hidden:{}, customItems:{}, hiddenListOpen:{}, tierToolsOpen:{}, subSteps:{}, fpExpanded:{}, fpSteps:{} };
+  return { checked:{}, expanded:{}, eggs:[], achievements:[], muted:false, localVisits:0, celebrated:false, rabbitCatches:0, themeHue:null, themeStyle:null, neoCalls:0, hidden:{}, customItems:{}, hiddenListOpen:{}, tierToolsOpen:{}, subSteps:{}, fpExpanded:{}, fpSteps:{} };
 }
 function loadState(){
   try{
@@ -1104,7 +1120,9 @@ function saveState(){
 /* =========================================================
    THEME (white rabbit color-shift)
 ========================================================= */
-var NEON_HUES = [180, 195, 210, 265, 285, 45, 60, 95, 25, 335];
+var NEON_HUES = [180, 195, 210, 225, 245, 265, 285, 300, 315, 335, 350,
+  45, 60, 75, 95, 110, 130, 150, 20, 5, 165, 255, 275, 10];
+var THEME_STYLES = ['solid', 'solid', 'gradient', 'gradient', 'stripes', 'dots'];
 window.__matrixBright = '#8cffc0';
 window.__matrixDim = '#1fae5f';
 function hslToRgb(h, s, l){
@@ -1117,10 +1135,11 @@ function hslToRgb(h, s, l){
   else if(h<240){ r=0;g=x;b=c; } else if(h<300){ r=x;g=0;b=c; } else { r=c;g=0;b=x; }
   return [Math.round((r+m)*255), Math.round((g+m)*255), Math.round((b+m)*255)];
 }
-function applyTheme(hue){
+function applyTheme(hue, style){
   var root = document.documentElement.style;
+  document.body.classList.remove('theme-gradient', 'theme-stripes', 'theme-dots');
   if(hue === null || hue === undefined){
-    ['--green','--green-dim','--green-bright','--green-rgb','--text','--border','--border-soft','--danger','--amber','--cyan','--magenta'].forEach(function(p){ root.removeProperty(p); });
+    ['--green','--green-dim','--green-bright','--green-rgb','--text','--border','--border-soft','--danger','--amber','--cyan','--magenta','--theme-hue','--theme-hue2','--theme-grad'].forEach(function(p){ root.removeProperty(p); });
     window.__matrixBright = '#8cffc0';
     window.__matrixDim = '#1fae5f';
     return;
@@ -1140,6 +1159,14 @@ function applyTheme(hue){
   root.setProperty('--magenta', 'hsl('+hue+',90%,62%)');
   window.__matrixBright = 'hsl('+hue+',95%,80%)';
   window.__matrixDim = 'hsl('+hue+',75%,42%)';
+  // Second hue a little way around the wheel, used for gradients/patterns
+  // so a catch can paint the HUD with two colors instead of just one flat
+  // tone — a wider, more varied palette than a single hue shift alone.
+  var hue2 = (hue + 42) % 360;
+  root.setProperty('--theme-hue', hue);
+  root.setProperty('--theme-hue2', hue2);
+  root.setProperty('--theme-grad', 'linear-gradient(135deg, hsl('+hue+',90%,62%), hsl('+hue2+',90%,62%))');
+  if(style && style !== 'solid') document.body.classList.add('theme-'+style);
 }
 
 var ALL_ITEMS = [];
@@ -2077,7 +2104,7 @@ function celebrate(){
   // the last, biggest easter egg: everything goes rainbow for a few seconds —
   // falling matrix letters, the whole theme, and a field of sparkles.
   var celebrateMs = 6000;
-  var priorHue = state.themeHue;
+  var priorHue = state.themeHue, priorStyle = state.themeStyle;
   window.__matrixRainbow = true;
   var rainbowStart = Date.now();
   var rainbowTimer = setInterval(function(){
@@ -2093,7 +2120,7 @@ function celebrate(){
   setTimeout(function(){
     clearInterval(rainbowTimer);
     window.__matrixRainbow = false;
-    applyTheme(priorHue);
+    applyTheme(priorHue, priorStyle);
   }, celebrateMs);
   el.addEventListener('click', function once(){ el.classList.remove('open'); el.removeEventListener('click', once); });
 }
@@ -2730,13 +2757,18 @@ renderSoundIcon();
 
 function catchRabbit(x, y){
   state.rabbitCatches = (state.rabbitCatches || 0) + 1;
-  var n = state.rabbitCatches, hue, label;
-  if(n === 1){ hue = 355; label = 'RED ALERT engaged.'; }
-  else if(n === 2){ hue = 322; label = 'ROSE PROTOCOL engaged.'; }
-  else { hue = NEON_HUES[Math.floor(Math.random()*NEON_HUES.length)]; label = 'Random neon shift engaged.'; }
+  var n = state.rabbitCatches, hue, style, label;
+  if(n === 1){ hue = 355; style = 'solid'; label = 'RED ALERT engaged.'; }
+  else if(n === 2){ hue = 322; style = 'solid'; label = 'ROSE PROTOCOL engaged.'; }
+  else {
+    hue = NEON_HUES[Math.floor(Math.random()*NEON_HUES.length)];
+    style = THEME_STYLES[Math.floor(Math.random()*THEME_STYLES.length)];
+    label = 'Random neon shift engaged.';
+  }
   state.themeHue = hue;
+  state.themeStyle = style;
   saveState();
-  applyTheme(hue);
+  applyTheme(hue, style);
   foundEgg('white_rabbit');
   Sound.egg();
   var cx = x || window.innerWidth/2, cy = y || window.innerHeight - 20;
@@ -3156,7 +3188,7 @@ var FP_INFO = {
 /* =========================================================
    INIT
 ========================================================= */
-applyTheme(state.themeHue);
+applyTheme(state.themeHue, state.themeStyle);
 renderTiers();
 updateStats();
 

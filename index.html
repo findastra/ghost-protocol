@@ -306,12 +306,16 @@
   }
   .term-launcher:hover{transform:scale(1.06);}
   #white-rabbit{
-    position:fixed; bottom:8px; left:-60px; z-index:41; cursor:pointer;
+    position:fixed; bottom:8px; left:-70px; z-index:41; cursor:pointer;
     display:none; user-select:none; -webkit-user-select:none; line-height:1;
     color:var(--green-bright); filter:drop-shadow(0 0 5px currentColor);
-    background:none; border:none; padding:4px;
+    background:none; border:none; padding:4px; transform-origin:bottom center;
+    will-change:transform, left;
   }
-  #white-rabbit svg{display:block; width:28px; height:28px; transform:scaleX(-1);}
+  #white-rabbit .rabbit-frame{display:none; width:36px; height:26px;}
+  #white-rabbit .rabbit-ground{display:block;}
+  #white-rabbit.airborne .rabbit-ground{display:none;}
+  #white-rabbit.airborne .rabbit-air{display:block;}
   #white-rabbit.running{display:block;}
   #white-rabbit:hover{filter:drop-shadow(0 0 9px currentColor);}
   .term-panel{
@@ -445,15 +449,25 @@
 </div>
 
 <button id="white-rabbit" aria-label="A white rabbit. Catch it." title="?">
-  <svg viewBox="0 0 8 8" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
-    <rect x="2" y="0" width="1" height="1"/><rect x="3" y="0" width="1" height="1"/>
-    <rect x="2" y="1" width="1" height="1"/><rect x="3" y="1" width="1" height="1"/>
-    <rect x="1" y="2" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/>
-    <rect x="0" y="3" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="5" y="3" width="1" height="1"/>
-    <rect x="0" y="4" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/>
-    <rect x="1" y="5" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/>
-    <rect x="2" y="6" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/>
-    <rect x="2" y="7" width="1" height="1"/><rect x="6" y="7" width="1" height="1"/>
+  <svg class="rabbit-frame rabbit-ground" viewBox="0 0 14 10" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
+    <rect x="9" y="0" width="1" height="1"/><rect x="11" y="0" width="1" height="1"/>
+    <rect x="9" y="1" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/>
+    <rect x="9" y="2" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/>
+    <rect x="8" y="3" width="5" height="1"/>
+    <rect x="5" y="4" width="9" height="1"/>
+    <rect x="2" y="5" width="11" height="1"/>
+    <rect x="0" y="6" width="1" height="1"/><rect x="1" y="6" width="11" height="1"/>
+    <rect x="2" y="7" width="2" height="1"/><rect x="8" y="7" width="2" height="1"/>
+    <rect x="2" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/>
+  </svg>
+  <svg class="rabbit-frame rabbit-air" viewBox="0 0 14 10" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
+    <rect x="8" y="0" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/>
+    <rect x="8" y="1" width="1" height="1"/><rect x="10" y="1" width="1" height="1"/>
+    <rect x="7" y="2" width="5" height="1"/>
+    <rect x="3" y="3" width="10" height="1"/>
+    <rect x="1" y="4" width="12" height="1"/>
+    <rect x="2" y="5" width="9" height="1"/>
+    <rect x="2" y="6" width="2" height="1"/><rect x="9" y="6" width="2" height="1"/>
   </svg>
 </button>
 <button class="term-launcher" id="term-launcher" aria-label="Open terminal" title="Open terminal">&gt;_</button>
@@ -1559,34 +1573,68 @@ renderSoundIcon();
 (function whiteRabbit(){
   var el = document.getElementById('white-rabbit');
   var running = false;
-  var doneTimer = null;
+  var rafId = null;
+  var startTime = 0, durationMs = 0, totalDist = 0, hopMs = 0, hopHeight = 0;
+
   function scheduleRun(){
     var delay = 90000 + Math.random()*120000; // roughly every 1.5-3.5 min
     setTimeout(runOnce, delay);
   }
+
+  // One hop cycle: a smooth up-down arc (sine, always >=0) plus squash on the
+  // ground and stretch at the peak, with a frame swap timed to match.
+  function applyPose(hopT){
+    var lift = Math.sin(Math.min(1, Math.max(0, hopT)) * Math.PI); // 0..1..0 per hop
+    var y = lift * hopHeight;
+    var airborne = hopT > 0.16 && hopT < 0.84;
+    el.classList.toggle('airborne', airborne);
+    var stretch = 1 + lift*0.16;
+    var squashX = airborne ? (2 - stretch) : 1.1;
+    var squashY = airborne ? stretch : 0.88;
+    el.style.transform = 'translateY(-'+y.toFixed(1)+'px) scaleX('+squashX.toFixed(2)+') scaleY('+squashY.toFixed(2)+')';
+  }
+
+  function step(now){
+    var elapsed = now - startTime;
+    var t = elapsed / durationMs;
+    if(t >= 1 || document.hidden){
+      finish();
+      return;
+    }
+    el.style.left = (-70 + t*totalDist).toFixed(1)+'px';
+    applyPose((elapsed % hopMs) / hopMs);
+    rafId = requestAnimationFrame(step);
+  }
+
+  function finish(){
+    running = false;
+    rafId = null;
+    el.classList.remove('running', 'airborne');
+    el.style.transform = '';
+    scheduleRun();
+  }
+
   function runOnce(){
     if(document.hidden || document.body.classList.contains('reduced-motion-skip')){ scheduleRun(); return; }
     running = true;
-    var dur = 6 + Math.random()*3.5;
-    el.style.transition = 'none';
-    el.style.left = '-60px';
+    durationMs = (6 + Math.random()*3.5) * 1000;
+    totalDist = window.innerWidth + 140;
+    hopMs = 300 + Math.random()*70;
+    hopHeight = 16 + Math.random()*8;
+    el.style.left = '-70px';
+    el.style.transform = '';
     el.classList.add('running');
-    void el.offsetWidth;
-    el.style.transition = 'left '+dur.toFixed(2)+'s linear';
-    el.style.left = (window.innerWidth + 60) + 'px';
-    doneTimer = setTimeout(function(){
-      el.classList.remove('running');
-      running = false;
-      scheduleRun();
-    }, dur*1000 + 80);
+    startTime = performance.now();
+    rafId = requestAnimationFrame(step);
   }
+
   el.addEventListener('click', function(e){
     if(!running) return;
     e.stopPropagation();
     var rect = el.getBoundingClientRect();
-    clearTimeout(doneTimer);
-    el.style.transition = 'none';
-    el.classList.remove('running');
+    if(rafId) cancelAnimationFrame(rafId);
+    el.classList.remove('running', 'airborne');
+    el.style.transform = '';
     running = false;
     catchRabbit(rect.left + rect.width/2, rect.top + rect.height/2);
     scheduleRun();

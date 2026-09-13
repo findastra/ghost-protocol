@@ -51,7 +51,7 @@ Told, not hidden — per request:
 5. **"Touch grass"** — the last item in tier 03 is only half a joke; checking it triggers its own reaction.
 6. **`matrix` terminal command** — flashes a full-screen matrix takeover.
 7. **`neo` terminal command** — flips an "invert" mode. The first time you ever type it, it says "Follow the white rabbit." Every time after that, it replies with a different random line from *The Matrix* or *Alice in Wonderland*.
-8. **The white rabbit** — every so often, a small rabbit sprints across the bottom of the screen. Click it before it escapes: the first catch turns the whole site red, the second turns it pink, and every catch after that shifts it to a new random neon color. The color sticks around (saved per browser) until you catch it again.
+8. **The white rabbit** — every so often, a small pixel rabbit hops (not just slides) across the bottom of the screen, with a real arcing bounce and a mid-air stretch pose. Click it before it escapes: the first catch turns the whole site red, the second turns it pink, and every catch after that shifts it to a new random neon color. The color sticks around (saved per browser) until you catch it again.
 9. **The browser console** — open devtools on the page for an ASCII-styled greeting most visitors will never see.
 10. **100% completion** — clearing all 41 items triggers a full-screen "DIGITAL GHOST / FULL CLEARANCE" celebration with a particle burst.
 11. **Achievements** — tracked quietly per browser: first check, each tier cleared, 3 easter eggs found ("EASTER HUNTER"), and full clearance.

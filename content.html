@@ -1732,68 +1732,87 @@ var MUSIC_ENABLED = true;
   if(!muteBtn || !controls) return;
 
   var NOTE_HZ = {
+    C2:65.41, D2:73.42, E2:82.41, F2:87.31, G2:98.00, A2:110.00, B2:123.47,
     E3:164.81, G3:196.00, A3:220.00, B3:246.94,
     C4:261.63, D4:293.66, E4:329.63, F4:349.23, G4:392.00, A4:440.00, B4:493.88,
     C5:523.25, D5:587.33, E5:659.25, F5:698.46, G5:783.99, A5:880.00
   };
 
   // Each track: bpm/type/vol defaults plus a note list in {n:note, b:beat
-  // offset, d:duration in beats}. Three distinct moods so the playlist
-  // feels varied: bouncy chase, mellow drift, driving anthem.
+  // offset, d:duration in beats}. Optional "bass" (a steady low-root pulse)
+  // and "kick" (a synthesized drum thump) add a second and third layer
+  // under the melody so each placeholder reads as a fuller arrangement
+  // instead of a single bare lead line. Eight distinct moods, each an
+  // original composition standing in for the song it's paired with in
+  // chat — never a transcription of the real thing.
   var TRACKS = [
-    { bpm: 150, type: 'square', vol: .045, totalBeats: 25, notes: [
+    { bpm: 150, type: 'square', vol: .045, totalBeats: 32, bass:{root:'C2', every:2, vol:.032}, kick:{every:1, vol:.05}, notes: [
       {n:'C4',b:0,d:.5},{n:'E4',b:1,d:.5},{n:'G4',b:2,d:.5},{n:'E4',b:3,d:.5},
       {n:'A4',b:4,d:.5},{n:'G4',b:5,d:.5},{n:'E4',b:6,d:.5},{n:'C4',b:7,d:.5},
       {n:'D4',b:8,d:.5},{n:'F4',b:9,d:.5},{n:'A4',b:10,d:.5},{n:'F4',b:11,d:.5},
       {n:'G4',b:12,d:.5},{n:'E4',b:13,d:.5},{n:'C4',b:14,d:.5},{n:'D4',b:15,d:.5},
       {n:'C4',b:16,d:.5},{n:'E4',b:17,d:.5},{n:'G4',b:18,d:.5},{n:'E4',b:19,d:.5},
-      {n:'A4',b:20,d:.5},{n:'G4',b:21,d:.5},{n:'E4',b:22,d:.5},{n:'C4',b:23,d:1}
+      {n:'A4',b:20,d:.5},{n:'G4',b:21,d:.5},{n:'E4',b:22,d:.5},{n:'C4',b:23,d:.5},
+      {n:'F4',b:24,d:.5},{n:'A4',b:25,d:.5},{n:'C5',b:26,d:.5},{n:'A4',b:27,d:.5},
+      {n:'G4',b:28,d:.5},{n:'F4',b:29,d:.5},{n:'D4',b:30,d:.5},{n:'C4',b:31,d:1}
     ]},
-    { bpm: 78, type: 'sine', vol: .05, totalBeats: 13.5, notes: [
+    { bpm: 78, type: 'sine', vol: .05, totalBeats: 19, bass:{root:'A2', every:3, vol:.03}, notes: [
       {n:'A3',b:0,d:1.6},{n:'C4',b:1.5,d:1.6},{n:'E4',b:3,d:1.6},{n:'A4',b:4.5,d:1.6},
-      {n:'G4',b:6,d:1.6},{n:'E4',b:7.5,d:1.6},{n:'C4',b:9,d:1.6},{n:'B3',b:10.5,d:2.2}
+      {n:'G4',b:6,d:1.6},{n:'E4',b:7.5,d:1.6},{n:'C4',b:9,d:1.6},{n:'B3',b:10.5,d:1.6},
+      {n:'D4',b:12,d:1.6},{n:'F4',b:13.5,d:1.6},{n:'A4',b:15,d:1.6},{n:'E4',b:16.5,d:2.2}
     ]},
-    { bpm: 132, type: 'sawtooth', vol: .04, totalBeats: 13, notes: [
+    { bpm: 132, type: 'sawtooth', vol: .04, totalBeats: 17, bass:{root:'E2', every:1, vol:.034}, kick:{every:1, vol:.05}, notes: [
       {n:'E3',b:0,d:.45},{n:'E3',b:1,d:.45},{n:'G3',b:2,d:.45},{n:'A3',b:3,d:.45},
       {n:'E3',b:4,d:.45},{n:'E3',b:5,d:.45},{n:'B3',b:6,d:.45},{n:'A3',b:7,d:.45},
       {n:'E4',b:8,d:.9,type:'triangle',vol:.055},{n:'G4',b:9,d:.9,type:'triangle',vol:.055},
-      {n:'A4',b:10,d:.9,type:'triangle',vol:.055},{n:'B4',b:11,d:1.4,type:'triangle',vol:.06}
+      {n:'A4',b:10,d:.9,type:'triangle',vol:.055},{n:'B4',b:11,d:.9,type:'triangle',vol:.06},
+      {n:'E3',b:12,d:.45},{n:'G3',b:13,d:.45},{n:'A3',b:14,d:.45},{n:'B3',b:15,d:1.4}
     ]},
     // 4th mood: bittersweet, mid-tempo — placeholder standing in for the
     // song referenced in chat as "icantbelieveiletyougetaway".
-    { bpm: 96, type: 'triangle', vol: .045, totalBeats: 16, notes: [
+    { bpm: 96, type: 'triangle', vol: .045, totalBeats: 23, bass:{root:'A2', every:2, vol:.03}, notes: [
       {n:'A3',b:0,d:.9},{n:'C4',b:1,d:.9},{n:'E4',b:2,d:.9},{n:'D4',b:3,d:.9},
       {n:'C4',b:4,d:.9},{n:'B3',b:5,d:.9},{n:'A3',b:6,d:1.4},
       {n:'D4',b:8,d:.9},{n:'F4',b:9,d:.9},{n:'E4',b:10,d:.9},{n:'C4',b:11,d:.9},
-      {n:'D4',b:12,d:.9},{n:'B3',b:13,d:.9},{n:'A3',b:14,d:1.8}
+      {n:'D4',b:12,d:.9},{n:'B3',b:13,d:.9},{n:'A3',b:14,d:1.4},
+      {n:'E4',b:16,d:.9},{n:'F4',b:17,d:.9},{n:'D4',b:18,d:.9},{n:'C4',b:19,d:1.4},
+      {n:'A3',b:20.5,d:2}
     ]},
     // 5th mood: bright, fast pop-punk energy — placeholder standing in for
     // "New Computers" by Girlfriends.
-    { bpm: 168, type: 'square', vol: .04, totalBeats: 9, notes: [
+    { bpm: 168, type: 'square', vol: .04, totalBeats: 14, bass:{root:'E2', every:1, vol:.03}, kick:{every:1, vol:.045}, notes: [
       {n:'E4',b:0,d:.4},{n:'G4',b:.5,d:.4},{n:'A4',b:1,d:.4},{n:'G4',b:1.5,d:.4},
       {n:'E4',b:2,d:.4},{n:'G4',b:2.5,d:.4},{n:'B4',b:3,d:.4},{n:'A4',b:3.5,d:.4},
       {n:'C5',b:4,d:.4},{n:'B4',b:4.5,d:.4},{n:'A4',b:5,d:.4},{n:'G4',b:5.5,d:.4},
-      {n:'E4',b:6,d:.4},{n:'D4',b:6.5,d:.4},{n:'E4',b:7,d:1.5}
+      {n:'E4',b:6,d:.4},{n:'D4',b:6.5,d:.4},{n:'E4',b:7,d:1},
+      {n:'G4',b:8,d:.4},{n:'A4',b:8.5,d:.4},{n:'B4',b:9,d:.4},{n:'A4',b:9.5,d:.4},
+      {n:'G4',b:10,d:.4},{n:'E4',b:10.5,d:.4},{n:'D4',b:11,d:.4},{n:'C4',b:11.5,d:.4},
+      {n:'E4',b:12,d:1.5}
     ]},
     // 6th mood: slow, chill lo-fi drift — placeholder standing in for
     // "20 Dollars" by Mayvi.
-    { bpm: 84, type: 'sine', vol: .05, totalBeats: 14.5, notes: [
+    { bpm: 84, type: 'sine', vol: .05, totalBeats: 23, bass:{root:'C2', every:4, vol:.028}, notes: [
       {n:'C4',b:0,d:1.8},{n:'E4',b:2,d:1.8},{n:'G4',b:4,d:1.8},{n:'A4',b:6,d:1.8},
-      {n:'G4',b:8,d:1.8},{n:'E4',b:10,d:1.8},{n:'D4',b:12,d:2.4}
+      {n:'G4',b:8,d:1.8},{n:'E4',b:10,d:1.8},{n:'D4',b:12,d:2},
+      {n:'F4',b:14,d:1.8},{n:'E4',b:16,d:1.8},{n:'C4',b:18,d:1.8},{n:'A3',b:20,d:2.4}
     ]},
     // 7th mood: dreamy, floaty arpeggios — placeholder standing in for
     // "Blissed" by Suzy Sheetr.
-    { bpm: 100, type: 'triangle', vol: .045, totalBeats: 14.5, notes: [
+    { bpm: 100, type: 'triangle', vol: .045, totalBeats: 20, bass:{root:'C2', every:3, vol:.03}, notes: [
       {n:'C4',b:0,d:.7},{n:'E4',b:1,d:.7},{n:'G4',b:2,d:.7},{n:'C5',b:3,d:.7},
       {n:'B4',b:4,d:.7},{n:'G4',b:5,d:.7},{n:'E4',b:6,d:.7},{n:'D4',b:7,d:1.4},
-      {n:'C4',b:9,d:.7},{n:'E4',b:10,d:.7},{n:'G4',b:11,d:.7},{n:'C5',b:12,d:1.8}
+      {n:'C4',b:9,d:.7},{n:'E4',b:10,d:.7},{n:'G4',b:11,d:.7},{n:'C5',b:12,d:1.4},
+      {n:'A4',b:13.5,d:.7},{n:'F4',b:14.5,d:.7},{n:'D4',b:15.5,d:.7},{n:'G4',b:16.5,d:.7},
+      {n:'C4',b:18,d:1.8}
     ]},
     // 8th mood: warm, gentle, uplifting — placeholder standing in for
     // "Shiny Kindness" by Helen Sun. Closes out the playlist.
-    { bpm: 88, type: 'sine', vol: .05, totalBeats: 16, notes: [
+    { bpm: 88, type: 'sine', vol: .05, totalBeats: 26, bass:{root:'D2', every:2, vol:.03}, kick:{every:2, vol:.035}, notes: [
       {n:'D4',b:0,d:1.3},{n:'F4',b:1.5,d:1.3},{n:'A4',b:3,d:1.3},{n:'G4',b:4.5,d:1.3},
       {n:'F4',b:6,d:1.3},{n:'D4',b:7.5,d:1.6},
-      {n:'E4',b:9.5,d:1.3},{n:'G4',b:11,d:1.3},{n:'A4',b:12.5,d:1.3},{n:'D5',b:14,d:2}
+      {n:'E4',b:9.5,d:1.3},{n:'G4',b:11,d:1.3},{n:'A4',b:12.5,d:1.3},{n:'D5',b:14,d:1.6},
+      {n:'F4',b:16,d:1.3},{n:'A4',b:17.5,d:1.3},{n:'D5',b:19,d:1.3},{n:'A4',b:20.5,d:1.6},
+      {n:'D4',b:22.5,d:2.5}
     ]}
   ];
 
@@ -1822,6 +1841,41 @@ var MUSIC_ENABLED = true;
     return ctx;
   }
 
+  // A steady low-root pulse under the melody — turns a single bare lead
+  // line into something that reads as an actual arrangement.
+  function scheduleBass(c, t0, beatSec, totalBeats, bass){
+    var freq = NOTE_HZ[bass.root];
+    if(!freq) return;
+    for(var b = 0; b < totalBeats; b += bass.every){
+      var start = t0 + b*beatSec;
+      var dur = bass.every*beatSec*0.85;
+      var o = c.createOscillator(), g = c.createGain();
+      o.type = bass.type || 'triangle';
+      o.frequency.setValueAtTime(freq, start);
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.exponentialRampToValueAtTime(bass.vol || 0.03, start + Math.min(0.04, dur*0.15));
+      g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      o.connect(g); g.connect(masterGain);
+      o.start(start); o.stop(start + dur + 0.05);
+    }
+  }
+
+  // A tiny synthesized drum thump (pitch-dropping sine burst) — the same
+  // trick chiptunes have always used in place of a real drum sample.
+  function scheduleKick(c, t0, beatSec, totalBeats, kick){
+    for(var b = 0; b < totalBeats; b += kick.every){
+      var start = t0 + b*beatSec;
+      var o = c.createOscillator(), g = c.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(150, start);
+      o.frequency.exponentialRampToValueAtTime(42, start + 0.12);
+      g.gain.setValueAtTime(kick.vol || 0.05, start);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
+      o.connect(g); g.connect(masterGain);
+      o.start(start); o.stop(start + 0.2);
+    }
+  }
+
   function playTrack(idx){
     var track = TRACKS[idx];
     if(!track) return;
@@ -1844,6 +1898,8 @@ var MUSIC_ENABLED = true;
       o.start(start);
       o.stop(start + dur + 0.05);
     });
+    if(track.bass) scheduleBass(c, t0, beatSec, track.totalBeats, track.bass);
+    if(track.kick) scheduleKick(c, t0, beatSec, track.totalBeats, track.kick);
     setTimeout(function(){
       if(idx + 1 < TRACKS.length) playTrack(idx + 1);
       // else: playlist finished — stop, no loop, per the request.

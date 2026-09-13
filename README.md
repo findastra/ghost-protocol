@@ -13,7 +13,7 @@ A single-file, self-contained, interactive personal cybersecurity checklist. Mat
 - **02 · DEEP FIELD** — DNS, tracker blocking, email aliases, social privacy, data brokers, encrypted messaging, firewalls
 - **03 · GHOST PROTOCOL** — key rotation, canary tokens, isolated browsing, self-hosted vaults, hardware SSH keys, VLANs, GPG, air-gapped backups
 
-Each item has a small chevron dot — click it to reveal *why it matters* and how to do it (nothing shows until you click it). Specific tools/services mentioned there (password managers, encryption tools, breach-check sites, etc.) are hyperlinked straight to their current official pages.
+Each item has a small chevron dot — click it to reveal *why it matters* and how to do it, written in plain language with real detail rather than a one-line summary (nothing shows until you click it). Specific tools/services mentioned there (password managers, encryption tools, breach-check sites, etc.) are hyperlinked straight to their current official pages.
 
 ## Customize each tier
 

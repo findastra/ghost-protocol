@@ -2,7 +2,7 @@
 
 A single-file, self-contained, interactive personal cybersecurity checklist. Matrix rain, a rank/threat-meter HUD, a hidden terminal, an AI chat assistant, and a stack of easter eggs — built for Astra.
 
-**[Live version](https://claude.ai/code/artifact/a5e30018-7271-48d9-a2a0-fb642da3651c)** *(hosted via Claude Artifacts)*
+**[Live version](https://findastra.github.io/ghost-protocol/)** *(hosted via Claude Artifacts)*
 
 ## What it is
 

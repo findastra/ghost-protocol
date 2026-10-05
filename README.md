@@ -1,4 +1,4 @@
-# Ghost Protocol — Personal Security Checklist
+# Ghost Protocol — Personal Cybersecurity Checklist
 
 A single-file, self-contained, interactive personal cybersecurity checklist. Matrix rain, a rank/threat-meter HUD, a hidden terminal, an AI chat assistant, and a stack of easter eggs — built for Astra.
 

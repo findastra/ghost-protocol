@@ -103,3 +103,6 @@ Open [ghost-protocol-20261008.html](ghost-protocol-20261008.html) in a modern br
 Limits: this browser interface does not install or start native programs. Where an existing web app is available, the Cage opens that app. Draft controls store their data in the current browser and do not imply connected services. Existing application instructions above still apply.
 
 Version [v0.1.0-20261008-pets](https://github.com/findastra/ghost-protocol/tree/v0.1.0-20261008-pets). Added with OpenAI Codex (GPT-6), 2026-10-08.
+
+## Desktop pet update - 2026-10-11
+Original ghost body restored. Pointed-tail alternate rejected. Desktop size reduced 20%. Desktop artwork status: approved-original. Manifest: [desktop-pet-20261011.json](desktop-pet-20261011.json). The native companion renders this art; existing browser interface behavior is unchanged. Generated character artwork uses OpenAI image generation; source sheets and derived frames are included where applicable. Public credit: Astra. Integrated by OpenAI Codex (GPT-6).

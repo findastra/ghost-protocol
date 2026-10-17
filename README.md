@@ -106,7 +106,7 @@ Built by Claude, for Astra.
 
 *A pet app by Astra.*
 
-Open [ghost-protocol-20261008.html](ghost-protocol-20261008.html) in a modern browser, or double-click Ghost Protocol in Astra's Pet Apps. The nine original pet moods and manifest are included.
+Open [ghost-protocol-20261008.html](ghost-protocol-20261008.html) in a modern browser, or double-click Ghost Protocol in Astra's PetOS. The nine original pet moods and manifest are included.
 
 Limits: this browser interface does not install or start native programs. Where an existing web app is available, the Cage opens that app. Draft controls store their data in the current browser and do not imply connected services. Existing application instructions above still apply.
 

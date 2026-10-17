@@ -1,20 +1,25 @@
 {
-  "pet": "Ghost Protocol",
+  "pet": "Gone Ghost",
   "kind": "pet-app",
   "owner": "Astra",
   "sprite": "pet-sprite-20261008.json",
   "art_key": "ghost-protocol",
-  "job": "A personal cybersecurity checklist for reviewing your own security habits and tracking the steps you complete.",
+  "job": "Watches the public Ghost Protocol website and checks Astra’s own security against its research: a personal cybersecurity checklist and the steps she has completed.",
   "runs_on": "Modern browser for the pet interface; original application requirements remain in README.md.",
   "entry": "ghost-protocol-20261008.html",
   "status": "hatching",
   "cage": {
     "topic": "pet-app",
-    "home": "https://github.com/findastra/astras-pet-apps"
+    "home": "https://github.com/findastra/astras-pet-os"
   },
   "version": "0.1.0-20261008-pets",
   "source": "https://github.com/findastra/ghost-protocol/tree/v0.1.0-20261008-pets",
   "built_with": "OpenAI Codex (GPT-6), 2026-10-08; OpenAI Codex (GPT-6), 2026-10-11",
   "desktop_pet": "desktop-pet-20261011.json",
-  "desktop_art_built_with": "OpenAI Codex (GPT-6), built-in imagegen and native renderer, 2026-10-11"
+  "desktop_art_built_with": "OpenAI Codex (GPT-6), built-in imagegen and native renderer, 2026-10-11",
+  "audit": {
+    "cadence": "weekly",
+    "subject": "your security checklist",
+    "needs": "a security step only you can do"
+  }
 }

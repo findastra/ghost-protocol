@@ -4,6 +4,14 @@ A single-file, self-contained, interactive personal cybersecurity checklist. Mat
 
 **[Live version](https://findastra.github.io/ghost-protocol/)** *(hosted via Claude Artifacts)*
 
+## Pictures
+
+![Ghost Protocol's personal cybersecurity checklist: the exposure meter, rank, and the first tiers (Root Access, Perimeter, Deep Field)](docs/images/ghost-protocol-live-site-20261017.png)
+
+The [live version](https://findastra.github.io/ghost-protocol/) on a first visit, before any item is checked.
+
+Screenshots taken 2026-10-17 with GitHub Goldfish's [project-image-generator](https://github.com/findastra/github-goldfish#project-image-generator); added with Claude Opus 5.5 (`claude-opus-5-5`), 2026-10-17.
+
 ## What it is
 
 41 checklist items across four tiers, ordered from "do this today" to "this is genuinely nitty-gritty":

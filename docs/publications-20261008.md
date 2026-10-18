@@ -26,4 +26,4 @@ Keep this source tag unchanged. For a defect in the pet interface, use the origi
 
 2026-10-11: Desktop artwork/size update prepared for publication; see ../desktop-pet-20261011.json. No new app integrations claimed.
 
-Desktop art follow-up (2026-10-11): Original body, 38% opacity. Source frames and runtime handoff are recorded in desktop-pet-20261011.json. Prepared by OpenAI Codex (GPT-6), 2026-10-11.
+Desktop art follow-up (2026-10-11): Original body, 38% opacity. Source frames and runtime handoff are recorded in https://raw.githubusercontent.com/findastra/astras-pet-os/main/desktop-art/ghost-protocol/desktop-pet-20261011.json. Prepared by OpenAI Codex (GPT-6), 2026-10-11.

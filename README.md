@@ -104,9 +104,9 @@ Built by Claude, for Astra.
 
 ## Ghost Protocol pet interface
 
-*A pet app by Astra.*
+*An Intelligent App, or Pet, by Astra.*
 
-Open [ghost-protocol-20261008.html](ghost-protocol-20261008.html) in a modern browser, or double-click Ghost Protocol in Astra's Pet Apps. The nine original pet moods and manifest are included.
+Open [ghost-protocol-20261008.html](ghost-protocol-20261008.html) in a modern browser, or double-click Ghost Protocol in Astra's PetOS. The nine original pet moods and manifest are included.
 
 Limits: this browser interface does not install or start native programs. Where an existing web app is available, the Cage opens that app. Draft controls store their data in the current browser and do not imply connected services. Existing application instructions above still apply.
 
@@ -116,3 +116,11 @@ Version [v0.1.0-20261008-pets](https://github.com/findastra/ghost-protocol/tree/
 Original ghost body restored. Pointed-tail alternate rejected. Desktop size reduced 20%. Desktop artwork status: approved-original. Manifest: [desktop-pet-20261011.json (in the hub)](https://raw.githubusercontent.com/findastra/astras-pet-os/main/desktop-art/ghost-protocol/desktop-pet-20261011.json). The native companion renders this art; existing browser interface behavior is unchanged. Generated character artwork uses OpenAI image generation; source sheets and derived frames are included where applicable. Public credit: Astra. Integrated by OpenAI Codex (GPT-6).
 
 Desktop appearance draft updated 2026-10-11: see [desktop details](https://raw.githubusercontent.com/findastra/astras-pet-os/main/desktop-art/ghost-protocol/desktop-pet-20261011.json). This changes the desktop pet, not application features.
+
+## Limits
+
+What is not done, plainly. From the hub's [intelligence levels](https://github.com/findastra/astras-pet-os/blob/main/INTELLIGENCE-LEVELS.md) (checked 2026-10-18):
+
+- **Program (L1/L2):** ✅ **Made by Astra:** **Ghost Protocol**: [findastra.github.io/ghost-protocol](https://findastra.github.io/ghost-protocol/), the public security website
+- **Runtime (L2):** — **Should:** watch the public Ghost Protocol website and check Astra's own security against its research
+- **Agentic harness (L3):** — not built yet

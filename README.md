@@ -104,7 +104,7 @@ Built by Claude, for Astra.
 
 ## Ghost Protocol pet interface
 
-*An Intelligent App, or Pet, by Astra.*
+*By Astra.*
 
 Open [ghost-protocol-20261008.html](ghost-protocol-20261008.html) in a modern browser, or double-click Ghost Protocol in Astra's PetOS. The nine original pet moods and manifest are included.
 

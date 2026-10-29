@@ -1,16 +1,17 @@
-# Ghost Protocol — Personal Cybersecurity Checklist
+# Ghost Protocol
 
-A single-file, self-contained, interactive personal cybersecurity checklist. Matrix rain, a rank/threat-meter HUD, a hidden terminal, an AI chat assistant, and a stack of easter eggs — built for Astra.
+*By Astra.* A single-file, self-contained, interactive personal cybersecurity checklist: matrix rain, a rank and
+threat-meter HUD, a hidden terminal, an AI chat assistant, and a stack of easter eggs.
 
-**[Live version](https://findastra.github.io/ghost-protocol/)** *(hosted via Claude Artifacts)*
+## The Checklist
 
-## Pictures
+<a href="https://findastra.github.io/ghost-protocol/"><img src="docs/images/ghost-protocol-live-site-20261017.png" alt="Ghost Protocol's personal cybersecurity checklist: the exposure meter, rank, and the first tiers (Root Access, Perimeter, Deep Field)" width="100%"></a>
 
-![Ghost Protocol's personal cybersecurity checklist: the exposure meter, rank, and the first tiers (Root Access, Perimeter, Deep Field)](docs/images/ghost-protocol-live-site-20261017.png)
+The live version on a first visit, before any item is checked.
 
-The [live version](https://findastra.github.io/ghost-protocol/) on a first visit, before any item is checked.
+**[▶ Open Ghost Protocol](https://findastra.github.io/ghost-protocol/)**
 
-Screenshots taken 2026-10-17 with GitHub Goldfish's [project-image-generator](https://github.com/findastra/github-goldfish#project-image-generator); added with Claude Opus 5.5 (`claude-opus-5-5`), 2026-10-17.
+**Needs:** a browser.
 
 ## What it is
 
@@ -88,39 +89,36 @@ Told, not hidden — per request:
 10. **100% completion** — clearing all 41 items triggers a full-screen "DIGITAL GHOST / FULL CLEARANCE" celebration: a burst of 0/1 particles, the theme cycling through every color, the matrix rain turning rainbow, and sparkles scattered across the whole screen — the final easter egg.
 11. **Achievements** — tracked quietly per browser: first check, each tier cleared, 3 easter eggs found ("EASTER HUNTER"), and full clearance.
 
-## Tech
-
-Single HTML file. No build step, no dependencies beyond a Google Fonts import (Orbitron + JetBrains Mono). Matrix rain is a `<canvas>` loop; everything else is vanilla CSS/JS.
-
-- `index.html` — the whole site.
-
-## Running it locally
-
-Just open `index.html` in a browser. No server required.
-
----
-Built by Claude, for Astra.
-
-
 ## Ghost Protocol pet interface
-
-*An Intelligent App, or Pet, by Astra.*
 
 Open [ghost-protocol-20261008.html](ghost-protocol-20261008.html) in a modern browser, or double-click Ghost Protocol in Astra's PetOS. The nine original pet moods and manifest are included.
 
-Limits: this browser interface does not install or start native programs. Where an existing web app is available, the Cage opens that app. Draft controls store their data in the current browser and do not imply connected services. Existing application instructions above still apply.
+## Quirks
 
-Version [v0.1.0-20261008-pets](https://github.com/findastra/ghost-protocol/tree/v0.1.0-20261008-pets). Added with OpenAI Codex (GPT-6), 2026-10-08.
+1. The pet interface (the browser page) does not install or start native programs. Where an existing web app is available, the Cage opens that app. Draft controls store their data in the current browser and do not imply connected services.
+2. What is not done, plainly. From the hub's [intelligence levels](https://github.com/findastra/astras-pet-os/blob/main/INTELLIGENCE-LEVELS.md) (checked 2026-10-18):
 
-## Desktop pet update - 2026-10-11
-Original ghost body restored. Pointed-tail alternate rejected. Desktop size reduced 20%. Desktop artwork status: approved-original. Manifest: [desktop-pet-20261011.json (in the hub)](https://raw.githubusercontent.com/findastra/astras-pet-os/main/desktop-art/ghost-protocol/desktop-pet-20261011.json). The native companion renders this art; existing browser interface behavior is unchanged. Generated character artwork uses OpenAI image generation; source sheets and derived frames are included where applicable. Public credit: Astra. Integrated by OpenAI Codex (GPT-6).
+   - **Program (L1/L2):** ✅ **Made by Astra:** **Ghost Protocol**: [findastra.github.io/ghost-protocol](https://findastra.github.io/ghost-protocol/), the public security website
+   - **Runtime (L2):** — **Should:** watch the public Ghost Protocol website and check Astra's own security against its research
+   - **Agentic harness (L3):** — not built yet
 
-Desktop appearance draft updated 2026-10-11: see [desktop details](https://raw.githubusercontent.com/findastra/astras-pet-os/main/desktop-art/ghost-protocol/desktop-pet-20261011.json). This changes the desktop pet, not application features.
+## Developer Notes
 
-## Limits
+1. **Tech:** Single HTML file. No build step, no dependencies beyond a Google Fonts import (Orbitron + JetBrains Mono). Matrix rain is a `<canvas>` loop; everything else is vanilla CSS/JS. `index.html` — the whole site.
+2. **Running it locally:** just open `index.html` in a browser. No server required.
+3. **Version:** Version [v0.1.0-20261008-pets](https://github.com/findastra/ghost-protocol/tree/v0.1.0-20261008-pets). Added with OpenAI Codex (GPT-6), 2026-10-08.
+4. **Desktop pet update, 2026-10-11:** Original ghost body restored. Pointed-tail alternate rejected. Desktop size reduced 20%. Desktop artwork status: approved-original. Manifest: [desktop-pet-20261011.json (in the hub)](https://raw.githubusercontent.com/findastra/astras-pet-os/main/desktop-art/ghost-protocol/desktop-pet-20261011.json). The native companion renders this art; existing browser interface behavior is unchanged. Generated character artwork uses OpenAI image generation; source sheets and derived frames are included where applicable. Public credit: Astra. Integrated by OpenAI Codex (GPT-6).
+5. **Rules:** [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md).
 
-What is not done, plainly. From the hub's [intelligence levels](https://github.com/findastra/astras-pet-os/blob/main/INTELLIGENCE-LEVELS.md) (checked 2026-10-18):
+## Credits
 
-- **Program (L1/L2):** ✅ **Made by Astra:** **Ghost Protocol**: [findastra.github.io/ghost-protocol](https://findastra.github.io/ghost-protocol/), the public security website
-- **Runtime (L2):** — **Should:** watch the public Ghost Protocol website and check Astra's own security against its research
-- **Agentic harness (L3):** — not built yet
+1. Built with Claude Sonnet 5, 2026-09-12 to 2026-09-14 ("Built by Claude, for Astra.").
+2. The pet interface: OpenAI Codex (GPT-6), 2026-10-08. The desktop pet's artwork: OpenAI image generation, integrated
+   by OpenAI Codex (GPT-6), 2026-10-11.
+3. The picture: a screenshot taken 2026-10-17 with GitHub Goldfish's
+   [project-image-generator](https://github.com/findastra/github-goldfish#project-image-generator); added with Claude
+   Opus 5.5 (`claude-opus-5-5`), 2026-10-17.
+
+## License
+
+MIT, see [LICENSE](LICENSE).

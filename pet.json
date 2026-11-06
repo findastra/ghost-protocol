@@ -8,7 +8,7 @@
   "runs_on": "Modern browser for the pet interface; original application requirements remain in README.md.",
   "entry": "ghost-protocol-20261008.html",
   "status": "hatching",
-  "cage": {
+  "hub": {
     "topic": "pet-app",
     "home": "https://github.com/findastra/astras-pet-os"
   },

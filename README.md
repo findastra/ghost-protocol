@@ -13,6 +13,21 @@ The live version on a first visit, before any item is checked.
 
 **Needs:** a browser.
 
+## How to open it
+
+- **On the web:** open [findastra.github.io/ghost-protocol](https://findastra.github.io/ghost-protocol/). Nothing to
+  install.
+- **On your own computer:** download `index.html` and the `fonts/` folder, keep them side by side, and open
+  `index.html` in any browser. Without `fonts/` the page uses your system's fonts.
+- **AI chat and AI suggest** only work when the page runs as a Claude artifact. Everywhere else the terminal keeps its
+  fixed commands, and you add items by hand.
+- Your checks stay in your own browser. The only outside request is the location lookup (ipapi.co) in "What This Page
+  Can See About You".
+
+<img src="docs/images/ghost-protocol-worksheet-20261111.png" alt="The Root Access tier opened: Get a password manager checked off, its explanation, a five-step worksheet with two steps done, links to Bitwarden and 1Password, and the note that this item has no live browser check." width="700">
+
+Each item opens into a worksheet: why it matters, numbered steps you can tick off, and links.
+
 ## What it is
 
 41 checklist items across four tiers, ordered from "do this today" to "this is genuinely nitty-gritty":
@@ -104,7 +119,7 @@ Open [ghost-protocol-20261008.html](ghost-protocol-20261008.html) in a modern br
 
 ## Developer Notes
 
-1. **Tech:** Single HTML file. No build step, no dependencies beyond a Google Fonts import (Orbitron + JetBrains Mono). Matrix rain is a `<canvas>` loop; everything else is vanilla CSS/JS. `index.html` — the whole site.
+1. **Tech:** Single HTML file. No build step and no dependencies. Its two fonts, Orbitron and JetBrains Mono (SIL Open Font License), are served from `fonts/` on this site, so no visitor's address goes to Google. Matrix rain is a `<canvas>` loop; everything else is vanilla CSS/JS. `index.html` — the whole site.
 2. **Running it locally:** just open `index.html` in a browser. No server required.
 3. **Version:** Version [v0.1.0-20261008-pets](https://github.com/findastra/ghost-protocol/tree/v0.1.0-20261008-pets). Added with OpenAI Codex (GPT-6), 2026-10-08.
 4. **Desktop pet update, 2026-10-11:** Original ghost body restored. Pointed-tail alternate rejected. Desktop size reduced 20%. Desktop artwork status: approved-original. Manifest: [desktop-pet-20261011.json (in the hub)](https://raw.githubusercontent.com/findastra/astras-pet-os/main/desktop-art/ghost-protocol/desktop-pet-20261011.json). The native companion renders this art; existing browser interface behavior is unchanged. Generated character artwork uses OpenAI image generation; source sheets and derived frames are included where applicable. Public credit: Astra. Integrated by OpenAI Codex (GPT-6).

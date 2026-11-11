@@ -4,10 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ghost Protocol</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<meta name="description" content="A free personal cybersecurity checklist, easiest fixes first and deep-cut steps last. Your progress stays in your own browser.">
 <style>
+  /* Fonts are served from this site (fonts/), so no visitor's address goes to Google. Orbitron and JetBrains Mono,
+     SIL Open Font License 1.1: fonts/orbitron-ofl-20261111.txt, fonts/jetbrains-mono-ofl-20261111.txt. */
+  @font-face{font-family:'Orbitron'; font-style:normal; font-weight:700; font-display:swap; src:url('fonts/orbitron-latin-700-normal-20261111.woff2') format('woff2');}
+  @font-face{font-family:'Orbitron'; font-style:normal; font-weight:900; font-display:swap; src:url('fonts/orbitron-latin-900-normal-20261111.woff2') format('woff2');}
+  @font-face{font-family:'JetBrains Mono'; font-style:normal; font-weight:400; font-display:swap; src:url('fonts/jetbrains-mono-latin-400-normal-20261111.woff2') format('woff2');}
+  @font-face{font-family:'JetBrains Mono'; font-style:normal; font-weight:500; font-display:swap; src:url('fonts/jetbrains-mono-latin-500-normal-20261111.woff2') format('woff2');}
+  @font-face{font-family:'JetBrains Mono'; font-style:normal; font-weight:700; font-display:swap; src:url('fonts/jetbrains-mono-latin-700-normal-20261111.woff2') format('woff2');}
   :root{
     --bg:#060a08;
     --bg-2:#050705;
@@ -105,7 +110,7 @@
   /* ---------- hero ---------- */
   .hero{padding:18px 2px 26px; border-bottom:1px dashed var(--border-soft); margin-bottom:26px;}
   .hero-eyebrow{
-    font-size:11px; letter-spacing:.22em; color:var(--green-dim); text-transform:uppercase;
+    font-size:11px; letter-spacing:.22em; color:var(--text-dim); text-transform:uppercase;
     display:flex; align-items:center; gap:8px; margin-bottom:10px;
   }
   .hero-eyebrow .dot{width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 1.6s infinite;}
@@ -209,6 +214,7 @@
     border:1px solid var(--border); background:var(--surface);
     border-radius:var(--radius); margin-bottom:14px; overflow:hidden;
   }
+  .tier-heading{margin:0; font:inherit; letter-spacing:normal;}
   .tier-head{
     width:100%; display:flex; align-items:center; gap:12px;
     background:none; border:none; color:var(--text); cursor:pointer;
@@ -260,7 +266,7 @@
   .item:last-child{border-bottom:none;}
   .item-row{display:flex; align-items:flex-start; gap:12px; padding:11px 6px;}
   .chk{
-    flex:none; width:22px; height:22px; margin-top:1px; border-radius:5px;
+    flex:none; width:24px; height:24px; margin-top:0; border-radius:5px;
     border:1.5px solid var(--green-dim); background:var(--surface-2);
     cursor:pointer; position:relative; appearance:none; -webkit-appearance:none;
     transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
@@ -269,7 +275,7 @@
   .chk:focus-visible{outline:2px solid var(--green-bright); outline-offset:2px;}
   .chk:checked{background:var(--green); border-color:var(--green); box-shadow:0 0 12px rgba(var(--green-rgb),.6);}
   .chk:checked::after{
-    content:''; position:absolute; left:6px; top:2px; width:6px; height:11px;
+    content:''; position:absolute; left:7px; top:3px; width:6px; height:11px;
     border:solid #04140a; border-width:0 2.5px 2.5px 0; transform:rotate(40deg);
   }
   .item-main{flex:1; min-width:0;}
@@ -278,7 +284,7 @@
   .item.done .item-title{color:var(--text-dim); text-decoration:line-through; text-decoration-color:var(--green-dim);}
   .item-blurb{font-size:12.5px; color:var(--text-dim); margin-top:2px;}
   .item-info{
-    flex:none; width:22px; height:22px; border-radius:50%; border:1px solid var(--border);
+    flex:none; width:24px; height:24px; border-radius:50%; border:1px solid var(--border);
     background:none; color:var(--text-dim); cursor:pointer;
     display:flex; align-items:center; justify-content:center; transition:transform .2s ease, color .15s ease, border-color .15s ease;
   }
@@ -332,7 +338,7 @@
   }
   .custom-tag{font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--cyan); border:1px solid var(--cyan); border-radius:99px; padding:1px 6px; margin-left:6px; vertical-align:middle;}
   .item-remove{
-    flex:none; width:20px; height:20px; border-radius:50%; border:1px solid var(--border);
+    flex:none; width:24px; height:24px; border-radius:50%; border:1px solid var(--border);
     background:none; color:var(--text-dim); cursor:pointer; font-size:10px;
     display:flex; align-items:center; justify-content:center; opacity:.55; transition:opacity .15s ease, color .15s ease, border-color .15s ease;
   }
@@ -1237,12 +1243,12 @@ function renderTiers(){
     var doneCount = items.filter(function(it){ return !!state.checked[it.id]; }).length;
     var openClass = state.expanded['tier_'+tier.id] ? ' open' : '';
     html += '<section class="tier'+openClass+'" id="tier-'+tier.id+'" style="--tier-accent:'+tier.accent+'">';
-    html += '  <button class="tier-head" data-tier="'+tier.id+'" aria-expanded="'+(!!state.expanded['tier_'+tier.id])+'">';
+    html += '  <h2 class="tier-heading"><button class="tier-head" data-tier="'+tier.id+'" aria-expanded="'+(!!state.expanded['tier_'+tier.id])+'">';
     html += '    <span class="tier-idx">'+tier.code+'</span>';
     html += '    <span class="tier-titles"><div class="name">'+tier.name+'</div><div class="tag">'+tier.tag+'</div></span>';
     html += '    <span class="tier-count">'+doneCount+'/'+items.length+'</span>';
     html +=      iconChevron();
-    html += '  </button>';
+    html += '  </button></h2>';
     html += '  <div class="tier-progress"><i style="width:'+Math.round(doneCount/Math.max(1,items.length)*100)+'%"></i></div>';
     html += '  <div class="tier-body"><div class="tier-body-clip"><div class="tier-body-inner">';
     html += '    <button class="tier-customize-toggle" data-customize-tier="'+tier.id+'" aria-expanded="'+(!!state.tierToolsOpen[tier.id])+'">';

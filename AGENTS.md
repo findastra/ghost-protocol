@@ -15,3 +15,5 @@ Checklist text escaping (typed and AI-suggested items; links kept to http and ht
 Pictures moved to the hub (one art source, Flash Audit A58, Astra 2026-10-18): every picture of Gone Ghost lives only in [findastra/astras-pet-os](https://github.com/findastra/astras-pet-os) (`art/frames/ghost-protocol/`, `desktop-art/ghost-protocol/`); this repo links to them and keeps no copy, so change a picture there, never here. By Claude Opus 5.5 (`claude-opus-5-5`), 2026-10-18.
 
 Unified footer (the Astra's PetOS footer box from PET-PROGRAM-FRAMEWORK.md section 3, item 9, copied from the hub's generated pet program page) added below the page footer in index.html, content.html and ghost-protocol-20261008.html: Claude Opus 5.5, 2026-11-09. The private copy, Am I a Ghost?, has the same footer.
+
+Audit fixes (2026-11-11): fonts served from fonts/ (OFL), 24 px tap targets, readable eyebrow text, tier names as headings, a page description, and README "How to open it" with a worksheet picture: Claude Opus 5.5, 2026-11-11.

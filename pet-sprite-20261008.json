@@ -5,15 +5,15 @@
     256
   ],
   "frames": {
-    "idle": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/frames/ghost-protocol/idle-20261008.png",
-    "blink": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/frames/ghost-protocol/blink-20261008.png",
-    "happy": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/frames/ghost-protocol/happy-20261008.png",
-    "curious": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/frames/ghost-protocol/curious-20261008.png",
-    "worried": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/frames/ghost-protocol/worried-20261008.png",
-    "sad": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/frames/ghost-protocol/sad-20261008.png",
-    "sick": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/frames/ghost-protocol/sick-20261008.png",
-    "alarmed": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/frames/ghost-protocol/alarmed-20261008.png",
-    "sleep": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/frames/ghost-protocol/sleep-20261008.png"
+    "idle": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/latest/frames/ghost-protocol/idle.png",
+    "blink": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/latest/frames/ghost-protocol/blink.png",
+    "happy": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/latest/frames/ghost-protocol/happy.png",
+    "curious": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/latest/frames/ghost-protocol/curious.png",
+    "worried": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/latest/frames/ghost-protocol/worried.png",
+    "sad": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/latest/frames/ghost-protocol/sad.png",
+    "sick": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/latest/frames/ghost-protocol/sick.png",
+    "alarmed": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/latest/frames/ghost-protocol/alarmed.png",
+    "sleep": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/latest/frames/ghost-protocol/sleep.png"
   },
   "built_with": "OpenAI Codex (GPT-6), 2026-10-08",
   "source": {

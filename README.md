@@ -110,7 +110,7 @@ Open [ghost-protocol-20261008.html](ghost-protocol-20261008.html) in a modern br
 
 ## Quirks
 
-1. The pet interface (the browser page) does not install or start native programs. Where an existing web app is available, the Cage opens that app. Draft controls store their data in the current browser and do not imply connected services.
+1. The pet interface (the browser page) does not install or start native programs. Where an existing web app is available, the old pets page opens that app. Draft controls store their data in the current browser and do not imply connected services.
 2. What is not done, plainly. From the hub's [intelligence levels](https://github.com/findastra/astras-pet-os/blob/main/INTELLIGENCE-LEVELS.md) (checked 2026-10-18):
 
    - **Program (L1/L2):** ✅ **Made by Astra:** **Ghost Protocol**: [findastra.github.io/ghost-protocol](https://findastra.github.io/ghost-protocol/), the public security website
